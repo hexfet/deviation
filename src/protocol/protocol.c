@@ -145,6 +145,7 @@ void PROTOCOL_Load(int no_dlg)
             break;
     }
     fclose(fh);
+    memset(ptr, 0, 4096 - size);  // initialize static variables to zero
     LCD_SetFont(old_font);
     if ((unsigned long)&_data_loadaddr != *loaded_protocol) {
         if(! no_dlg) {
