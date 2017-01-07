@@ -791,7 +791,7 @@ static void initialize(u8 bind)
     else if (num_channels > 12)
         num_channels = 12;
 
-    if (bind) {
+    if (bind || Model.fixed_id == 0) {
         state = DSM2_BIND;
         PROTOCOL_SetBindState((BIND_COUNT > 200 ? BIND_COUNT / 2 : 200) * 10); //msecs
         initialize_bind_state();
@@ -812,7 +812,7 @@ const void *DSM2_Cmds(enum ProtoCmds cmd)
         case PROTOCMD_RESET:
             CLOCK_StopTimer();
             return (void *)(CYRF_Reset() ? 1L : -1L);
-        case PROTOCMD_CHECK_AUTOBIND: return 0; //Never Autobind
+        case PROTOCMD_CHECK_AUTOBIND: return Model.fixed_id ? 0 : (void *)1L;
         case PROTOCMD_BIND:  initialize(1); return 0;
         case PROTOCMD_NUMCHAN: return (void *)12L;
         case PROTOCMD_DEFAULT_NUMCHAN: return (void *)7L;
