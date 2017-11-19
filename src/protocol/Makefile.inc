@@ -223,5 +223,9 @@ $(ODIR)/protocol/gw008.mod : $(ODIR)/gw008_nrf24l01.bin
 $(ODIR)/protocol/dm002.mod : $(ODIR)/dm002_nrf24l01.bin
 	@echo Building 'dm002' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
-    
+
+$(ODIR)/protocol/sumd.mod : $(ODIR)/sumd.bin
+	@echo Building 'sumd' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
 endif #BUILD_TARGET
