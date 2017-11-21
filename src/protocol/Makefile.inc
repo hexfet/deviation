@@ -44,7 +44,7 @@ PROTO_MODULES += $(ODIR)/protocol/inav.mod
 PROTO_MODULES += $(ODIR)/protocol/q303.mod
 PROTO_MODULES += $(ODIR)/protocol/gw008.mod
 PROTO_MODULES += $(ODIR)/protocol/dm002.mod
-PROTO_MODULES += $(ODIR)/protocol/sumd.mod
+PROTO_MODULES += $(ODIR)/protocol/serial.mod
 
 ALL += $(PROTO_MODULES)
 else #BUILD_TARGET
@@ -224,8 +224,8 @@ $(ODIR)/protocol/dm002.mod : $(ODIR)/dm002_nrf24l01.bin
 	@echo Building 'dm002' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 
-$(ODIR)/protocol/sumd.mod : $(ODIR)/sumd.bin
-	@echo Building 'sumd' module
+$(ODIR)/protocol/serial.mod : $(ODIR)/serialout.bin
+	@echo Building 'serial' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 
 endif #BUILD_TARGET
