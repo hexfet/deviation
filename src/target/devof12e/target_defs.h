@@ -28,13 +28,12 @@
 #define HAS_SCANNER         0
 #define HAS_LAYOUT_EDITOR   0
 #define HAS_EXTRA_SWITCHES  0
-#define HAS_EXTRA_BUTTONS  0
+#define HAS_EXTRA_BUTTONS   0
 #define HAS_MULTIMOD_SUPPORT 1
 #define HAS_MAPPED_GFX      1
 #define USE_PBM_IMAGE       1
 #define HAS_CHAR_ICONS      1
 #define HAS_VIDEO           32
-#define HAS_EXTRA_SCREEN_TUNING 1
 #define HAS_EXTENDED_AUDIO  1
 #define HAS_AUDIO_UART5     0
 #define HAS_MUSIC_CONFIG    1
@@ -54,11 +53,10 @@
 #define MIN_BATTERY_ALARM 3300
 #define MAX_POWER_ALARM 60
 
-#define NUM_OUT_CHANNELS 12
+#define NUM_OUT_CHANNELS 16
 #define NUM_VIRT_CHANNELS 10
 
 #define NUM_TRIMS 10
-#define NUM_TOGGLES 5
 #define MAX_POINTS 13
 #define NUM_MIXERS ((NUM_OUT_CHANNELS + NUM_VIRT_CHANNELS) * 4)
 

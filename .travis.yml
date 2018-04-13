@@ -92,7 +92,15 @@ before_script:
   - echo $HOME
   - arm-none-eabi-gcc --version
 
-script: cd src && make $MAKETARGET
+script: 
+  - cd src;
+  - if [[ "$TRAVIS_EVENT_TYPE" == "cron" && "$MAKETARGET" == "zip_devo8" ]]; then
+        export MAKETARGET="zips winzips";
+        export FLTK_DIR=$HOME/fltk-1.3.0-w32;
+        export PORTAUDIO_DIR=$HOME/portaudio-w32;
+        export MPG123_DIR=$HOME/mpg123-w32;
+    fi;
+  - make $MAKETARGET;
 
 after_success:
   - if [ "$TRAVIS_EVENT_TYPE" == "api" ]; then
@@ -108,6 +116,14 @@ after_success:
                 ../utils/upload_test_build.pl -skip -release "$RELEASE_VERSION" -delete;
                 ../utils/upload_test_build.pl -skip -release "$RELEASE_VERSION" *.zip;
             fi;
+        fi;
+    fi;
+  - if [[ "$TRAVIS_EVENT_TYPE" == "cron" && "$MAKETARGET" == "zips winzips" ]]; then
+          export NIGHTLY_DATE=$(date "+%Y-%m-%d");
+        if [ "$NIGHTLY_DATE" != "" ]; then
+            echo "Uploading Nightly - $NIGHTLY_DATE";
+            ../utils/upload_test_build.pl -skip -nightly "$NIGHTLY_DATE" -delete;
+            ../utils/upload_test_build.pl -skip -nightly "$NIGHTLY_DATE" *.zip;
         fi;
     fi;
        

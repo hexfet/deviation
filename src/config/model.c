@@ -93,6 +93,8 @@ static const char MIXER_CURVE_SMOOTH[] = "smooth";
 /* Section: Channel */
 static const char SECTION_CHANNEL[] = "channel";
 
+static const char CHAN_DISPLAY_FORMAT[] = "display-format";
+static const char CHAN_DISPLAY_SCALE[] = "display-scale";
 static const char CHAN_LIMIT_REVERSE[] = "reverse";
 static const char CHAN_LIMIT_SAFETYSW[] = "safetysw";
 static const char CHAN_LIMIT_SAFETYVAL[] = "safetyval";
@@ -221,7 +223,7 @@ static u8 get_source(const char *section, const char *value)
     char cmp[10];
     for (i = 0; i <= NUM_SOURCES; i++) {
         if(mapstrcasecmp(INPUT_SourceNameReal(cmp, i), ptr) == 0) {
-            #if defined(_DEVO7E_256_TARGET_H_) || defined(_T8SG_TARGET_H_)
+            #if defined(HAS_SWITCHES_NOSTOCK) && HAS_SWITCHES_NOSTOCK
             #define SWITCH_NOSTOCK ((1 << INP_HOLD0) | (1 << INP_HOLD1) | \
                                     (1 << INP_FMOD0) | (1 << INP_FMOD1))
             if ((Transmitter.ignore_src & SWITCH_NOSTOCK) == SWITCH_NOSTOCK) {
@@ -231,7 +233,7 @@ static u8 get_source(const char *section, const char *value)
                    mapstrcasecmp("HOLD1", ptr) == 0)
                     break;
             }
-            #endif
+            #endif //HAS_SWITCHES_NOSTOCK
             return ((ptr == value) ? 0 : 0x80) | i;
         }
     }
@@ -546,6 +548,7 @@ static const struct struct_map _seclimit[] = {
     {CHAN_SCALAR,          OFFSET(Model.limits[0], servoscale), 100},
     {CHAN_SCALAR_NEG,      OFFSET(Model.limits[0], servoscale_neg), 0},
     {CHAN_SUBTRIM,         OFFSETS(Model.limits[0], subtrim), 0},
+    {CHAN_DISPLAY_SCALE,   OFFSETS(Model.limits[0], displayscale), DEFAULT_DISPLAY_SCALE},
 };
 static const struct struct_map _sectrim[] = {
     {TRIM_SOURCE, OFFSET_SRC(Model.trims[0], src), 0xFFFF},
@@ -760,6 +763,10 @@ int assign_int(void* ptr, const struct struct_map *map, int map_size)
             }
             return 1;
         }
+        if (MATCH_KEY(CHAN_DISPLAY_FORMAT)) {
+            strcpy(m->limits[idx].displayformat, value);
+            return 1;
+        }
 
         if(assign_int(&m->limits[idx], _seclimit, MAPSIZE(_seclimit)))
             return 1;
@@ -832,7 +839,7 @@ int assign_int(void* ptr, const struct struct_map *map, int map_size)
             return 1;
         }
         if (MATCH_KEY(TRIM_VALUE)) {
-            parse_int_list(value, m->trims[idx].value, 3, S8);
+            parse_int_list(value, m->trims[idx].value, 6, S8);
             return 1;
         }
         printf("%s: Unknown trim setting: %s\n", section, name);
@@ -1215,6 +1222,8 @@ u8 CONFIG_WriteModel(u8 model_num) {
         }
         if(WRITE_FULL_MODEL || m->limits[idx].min != DEFAULT_SERVO_LIMIT)
             fprintf(fh, "%s=%d\n", CHAN_LIMIT_MIN, -(int)m->limits[idx].min);
+        if(WRITE_FULL_MODEL || strcmp(m->limits[idx].displayformat, DEFAULT_DISPLAY_FORMAT) != 0)
+            fprintf(fh, "%s=%s\n", CHAN_DISPLAY_FORMAT, m->limits[idx].displayformat);
         if(WRITE_FULL_MODEL || m->templates[idx] != 0)
             fprintf(fh, "%s=%s\n", CHAN_TEMPLATE, CHAN_TEMPLATE_VAL[m->templates[idx]]);
         write_mixer(fh, m, idx);
@@ -1262,9 +1271,11 @@ u8 CONFIG_WriteModel(u8 model_num) {
         write_int(fh, &m->trims[idx], _sectrim, MAPSIZE(_sectrim));
         if(WRITE_FULL_MODEL || m->trims[idx].sw)
             fprintf(fh, "%s=%s\n", TRIM_SWITCH, INPUT_SourceNameAbbrevSwitchReal(file, m->trims[idx].sw));
-        if(WRITE_FULL_MODEL || m->trims[idx].value[0] || m->trims[idx].value[1] || m->trims[idx].value[2])
-            fprintf(fh, "%s=%d,%d,%d\n", TRIM_VALUE,
-                    m->trims[idx].value[0], m->trims[idx].value[1], m->trims[idx].value[2]);
+        if(WRITE_FULL_MODEL || m->trims[idx].value[0] || m->trims[idx].value[1] || m->trims[idx].value[2]
+                            || m->trims[idx].value[3] || m->trims[idx].value[4] || m->trims[idx].value[5])
+            fprintf(fh, "%s=%d,%d,%d,%d,%d,%d\n", TRIM_VALUE,
+                    m->trims[idx].value[0], m->trims[idx].value[1], m->trims[idx].value[2],
+                    m->trims[idx].value[3], m->trims[idx].value[4], m->trims[idx].value[5]);
     }
     if (WRITE_FULL_MODEL || m->swash_type) {
         fprintf(fh, "[%s]\n", SECTION_SWASH);

@@ -45,6 +45,7 @@ PROTO_MODULES += $(ODIR)/protocol/q303.mod
 PROTO_MODULES += $(ODIR)/protocol/gw008.mod
 PROTO_MODULES += $(ODIR)/protocol/dm002.mod
 PROTO_MODULES += $(ODIR)/protocol/sumd.mod
+PROTO_MODULES += $(ODIR)/protocol/corona.mod
 
 ALL += $(PROTO_MODULES)
 else #BUILD_TARGET
@@ -228,4 +229,8 @@ $(ODIR)/protocol/sumd.mod : $(ODIR)/sumd.bin
 	@echo Building 'sumd' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 
+$(ODIR)/protocol/corona.mod : $(ODIR)/corona_cc2500.bin
+	@echo Building 'corona' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+    
 endif #BUILD_TARGET

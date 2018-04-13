@@ -213,6 +213,22 @@ s32 MIXER_GetChannel(unsigned channel, enum LimitMask flags)
     return MIXER_ApplyLimits(channel, &Model.limits[channel], raw, Channels, flags);
 }
 
+s16 MIXER_GetChannelDisplayScale(unsigned channel)
+{
+    if (channel < NUM_OUT_CHANNELS)
+        return Model.limits[channel].displayscale;
+    else
+        return DEFAULT_DISPLAY_SCALE;
+}
+
+char* MIXER_GetChannelDisplayFormat(unsigned channel)
+{
+    if (channel < NUM_OUT_CHANNELS)
+        return Model.limits[channel].displayformat;
+    else
+        return DEFAULT_DISPLAY_FORMAT;
+}
+
 #define REZ_SWASH_X(x)  ((x) - (x)/8 - (x)/128 - (x)/512)   //  1024*sin(60) ~= 886
 #define REZ_SWASH_Y(x)  (1*(x))   //  1024 => 1024
 s32 MIXER_CreateCyclicOutput(volatile s32 *raw, unsigned cycnum)
@@ -421,7 +437,7 @@ s32 MIXER_ApplyLimits(unsigned channel, struct Limit *limit, volatile s32 *_raw,
 s8 *MIXER_GetTrim(unsigned i)
 {
     if (Model.trims[i].sw) {
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < 6; j++) {
             // Assume switch 0/1/2 are in order
             if(raw[Model.trims[i].sw+j] > 0) {
                 return &Model.trims[i].value[j];
@@ -863,6 +879,8 @@ void MIXER_SetDefaultLimit(struct Limit *limit)
     limit->min = DEFAULT_SERVO_LIMIT;
     limit->servoscale = 100;
     limit->servoscale_neg = 0;  //match servoscale
+    limit->displayscale = DEFAULT_DISPLAY_SCALE;
+    strcpy(limit->displayformat, DEFAULT_DISPLAY_FORMAT);
 }
 
 int MIXER_GetSourceVal(int idx, u32 opts)

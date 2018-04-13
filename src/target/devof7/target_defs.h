@@ -23,7 +23,7 @@
  #define HAS_STANDARD_GUI   1
 #endif
 
-#define HAS_ADVANCED_GUI    0
+#define HAS_ADVANCED_GUI    1
 #define HAS_PERMANENT_TIMER 0
 #define HAS_TELEMETRY       1
 #define HAS_EXTENDED_TELEMETRY 0
@@ -34,7 +34,7 @@
 #define HAS_SCANNER         0
 #define HAS_LAYOUT_EDITOR   0
 #define HAS_EXTRA_SWITCHES  OPTIONAL
-#define HAS_EXTRA_BUTTONS  0
+#define HAS_EXTRA_BUTTONS   0
 #define HAS_MULTIMOD_SUPPORT 1
 #define HAS_MAPPED_GFX      0
 #define HAS_CHAR_ICONS      1
@@ -54,11 +54,10 @@
 
 #define MAX_POWER_ALARM 60
 
-#define NUM_OUT_CHANNELS 12
+#define NUM_OUT_CHANNELS 16
 #define NUM_VIRT_CHANNELS 10
 
 #define NUM_TRIMS 6
-#define NUM_TOGGLES 5
 #define MAX_POINTS 13
 #define NUM_MIXERS ((NUM_OUT_CHANNELS + NUM_VIRT_CHANNELS) * 4)
 
