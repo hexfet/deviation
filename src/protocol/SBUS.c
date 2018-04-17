@@ -71,7 +71,7 @@ static void initialize()
     UART_SetDataRate(100000);
 #if HAS_EXTENDED_AUDIO
 #if HAS_AUDIO_UART5
-    if (Transmitter.audio_uart5)
+    if (!Transmitter.audio_uart5)
 #endif
     Transmitter.audio_player = AUDIO_DISABLED; // disable voice commands on serial port
 #endif
