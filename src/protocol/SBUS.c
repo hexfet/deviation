@@ -30,8 +30,10 @@
   extern unsigned _data_loadaddr;
   const unsigned long protocol_type = (unsigned long)&_data_loadaddr;
 #endif
-#define SBUS_CHANNELS NUM_OUT_CHANNELS
-static u8 packet[2 * SBUS_CHANNELS + 2];
+
+#define SBUS_CHANNELS 16
+#define SBUS_PACKET_SIZE 25
+static u8 packet[SBUS_PACKET_SIZE];
 u8 num_channels;
 
 volatile u8 state;
@@ -45,13 +47,13 @@ static void build_data_pkt()
         packet[ii * 2 + 1] = value >> 8;
         packet[ii * 2 + 2] = value & 0xFF;
     }
-    packet[33] = 0x00;
+    packet[SBUS_PACKET_SIZE-1] = 0x00;
 }
 
 static u16 serial_cb()
 {
     build_data_pkt();
-    UART_Send(packet, 2 * SBUS_CHANNELS + 2);
+    UART_Send(packet, sizeof (packet));
 #ifdef EMULATOR
     return 3000;
 #else
@@ -66,10 +68,10 @@ static void initialize()
     {
         return;
     }
-    UART_SetDataRate(115200);
+    UART_SetDataRate(100000);
 #if HAS_EXTENDED_AUDIO
 #if HAS_AUDIO_UART5
-    if (Transmitter.audio_uart5) return;
+    if (Transmitter.audio_uart5)
 #endif
     Transmitter.audio_player = AUDIO_DISABLED; // disable voice commands on serial port
 #endif
@@ -85,7 +87,7 @@ const void * SBUS_Cmds(enum ProtoCmds cmd)
         case PROTOCMD_DEINIT: UART_SetDataRate(0); return 0;
         case PROTOCMD_CHECK_AUTOBIND: return (void *)1L;
         case PROTOCMD_BIND:  initialize(); return 0;
-        case PROTOCMD_NUMCHAN: return (void *)12L;
+        case PROTOCMD_NUMCHAN: return (void *)16L;
         case PROTOCMD_DEFAULT_NUMCHAN: return (void *)8L;
         case PROTOCMD_TELEMETRYSTATE: return (void *)(long)PROTO_TELEM_UNSUPPORTED;
         default: break;

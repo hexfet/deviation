@@ -45,6 +45,7 @@ PROTO_MODULES += $(ODIR)/protocol/q303.mod
 PROTO_MODULES += $(ODIR)/protocol/gw008.mod
 PROTO_MODULES += $(ODIR)/protocol/dm002.mod
 PROTO_MODULES += $(ODIR)/protocol/sumd.mod
+PROTO_MODULES += $(ODIR)/protocol/sbus.mod
 PROTO_MODULES += $(ODIR)/protocol/corona.mod
 
 ALL += $(PROTO_MODULES)
@@ -227,6 +228,10 @@ $(ODIR)/protocol/dm002.mod : $(ODIR)/dm002_nrf24l01.bin
 
 $(ODIR)/protocol/sumd.mod : $(ODIR)/sumd.bin
 	@echo Building 'sumd' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/sbus.mod : $(ODIR)/sbus.bin
+	@echo Building 'sbus' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 
 $(ODIR)/protocol/corona.mod : $(ODIR)/corona_cc2500.bin
