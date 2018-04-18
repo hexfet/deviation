@@ -68,13 +68,14 @@ static void initialize()
     {
         return;
     }
-    UART_SetDataRate(100000);
 #if HAS_EXTENDED_AUDIO
 #if HAS_AUDIO_UART5
     if (!Transmitter.audio_uart5)
 #endif
     Transmitter.audio_player = AUDIO_DISABLED; // disable voice commands on serial port
 #endif
+    UART_SetDataRate(100000);
+    UART_SetFormat(8, UART_PARITY_EVEN, UART_STOPBITS_2);
     num_channels = Model.num_channels;
     state = 0;
     CLOCK_StartTimer(1000, serial_cb);
