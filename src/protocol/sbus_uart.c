@@ -33,7 +33,7 @@
 #endif
 
 #define SBUS_DATARATE             100000
-#define SBUS_FRAME_PERIOD         9000   // XSR output interval for qczek testing //14000   // 14ms
+#define SBUS_FRAME_PERIOD         7000   // 7ms "fast" sbus timing
 #define SBUS_CHANNELS             16
 #define SBUS_PACKET_SIZE          25
 
