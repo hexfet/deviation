@@ -238,7 +238,7 @@ void sys_tick_handler(void)
         if(msec_callbacks & (1 << MEDIUM_PRIORITY)) {
             if (msecs == msec_cbtime[MEDIUM_PRIORITY]) {
                 //medium priority tasks execute in interrupt and main loop context
-                nvic_set_pending_irq(NVIC_EXTI1_IRQ);
+//TODO                nvic_set_pending_irq(NVIC_EXTI1_IRQ);
                 priority_ready |= 1 << MEDIUM_PRIORITY;
                 msec_cbtime[MEDIUM_PRIORITY] = msecs + MEDIUM_PRIORITY_MSEC;
             }

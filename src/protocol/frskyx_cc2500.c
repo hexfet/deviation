@@ -18,7 +18,9 @@
   #define FRSKYX_Cmds PROTO_Cmds
   #pragma long_calls
 #endif
+#include <libopencm3/cm3/nvic.h>  //TODO 
 #include "common.h"
+#include "devo.h"  //TODO 
 #include "interface.h"
 #include "mixer.h"
 #include "config/model.h"
@@ -255,6 +257,23 @@ static void frskyX_data_frame() {
     static u8 failsafe_chan;
     u8 startChan = 0;
 
+#if 0
+//TODO
+#ifdef TIMING_DEBUG
+    debug_timing(5, 0);
+#endif
+ADC_Filter();
+#ifdef TIMING_DEBUG
+    debug_timing(5, 1);
+#endif
+#ifdef TIMING_DEBUG
+    debug_timing(3, 0);
+#endif
+MIXER_CalcChannels();
+#ifdef TIMING_DEBUG
+    debug_timing(3, 1);
+#endif
+#endif
 
     // data frames sent every 9ms; failsafe every 9 seconds
     if (FS_flag == 0  &&  failsafe_count > FAILSAFE_TIMEOUT  &&  chan_offset == 0  &&  Model.proto_opts[PROTO_OPTS_FAILSAFE] != FAILSAFE_RX) {
@@ -725,6 +744,7 @@ static u16 frskyx_cb() {
       channr = 0;
       state++;
       break;
+
     case FRSKY_DATA1:
       if (fine != (s8)Model.proto_opts[PROTO_OPTS_FREQFINE]) {
           fine = (s8)Model.proto_opts[PROTO_OPTS_FREQFINE];
@@ -757,11 +777,21 @@ static u16 frskyx_cb() {
       CC2500_Strobe(CC2500_SRX);
       state++;
 #ifndef EMULATOR
-      return 3100;
+      return 2600; //TODO 3100;
 #else
-      return 31;
+      return 26; //TODO 31;
 #endif
     case FRSKY_DATA4:
+#if 1       //TODO
+      nvic_set_pending_irq(NVIC_EXTI1_IRQ);
+      state++;
+#ifndef EMULATOR
+      return 500;
+#else
+      return 5;
+#endif
+    case FRSKY_DATA5:
+#endif
       len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 #ifndef EMULATOR
       if (len && len < MAX_PACKET_SIZE) {
