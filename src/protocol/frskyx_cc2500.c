@@ -20,7 +20,6 @@
 #endif
 #include <libopencm3/cm3/nvic.h>  //TODO 
 #include "common.h"
-#include "devo.h"  //TODO 
 #include "interface.h"
 #include "mixer.h"
 #include "config/model.h"
