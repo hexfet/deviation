@@ -141,6 +141,7 @@ void ADC_Filter()
     }
 }
 
+#ifdef TEST_ADC
 void ADC_ScanChannels()
 {
     u32 lastms = 0;
@@ -177,3 +178,4 @@ void ADC_ScanChannels()
         }
     }
 }
+#endif // TEST_ADC
