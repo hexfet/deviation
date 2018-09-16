@@ -224,7 +224,13 @@ void exti1_isr()
 {
     //ADC_StartCapture();
     //ADC completion will trigger update
+#ifdef TIMING_DEBUG
+    debug_timing(5, 0);
+#endif
     ADC_Filter();
+#ifdef TIMING_DEBUG
+    debug_timing(5, 1);
+#endif
     medium_priority_cb();
 }
 

@@ -32,6 +32,9 @@ void AUDIO_Init() {
         // Reload hardware.ini if audio_player had been temporarily disabled
         CONFIG_LoadHardware();
     }
+    if (Transmitter.audio_player == AUDIO_NONE)
+        return;
+
     printf("Voice: Initializing UART for extended-audio\n");
 
 #if HAS_AUDIO_UART5

@@ -354,8 +354,37 @@ void VIDEO_Update()
 #endif //HAS_VIDEO
 
 #ifdef TIMING_DEBUG
+#include <libopencm3/stm32/rcc.h>
 void debug_timing(u32 type, int startend)
 {
+    static int init;
+    
+    if (!init) {
+        init = 1;
+        // set trainer port pins for GPIO output as timing markers
+        rcc_periph_clock_enable(RCC_GPIOA);
+        gpio_set_mode(_USART_GPIO, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, _USART_GPIO_USART_TX);
+        gpio_set_mode(_USART_GPIO, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, _USART_GPIO_USART_RX);
+    }
+
+    if (type == 3 || type == 5) {  // mixers and ADC_Filter
+        if (startend)
+            gpio_set(_USART_GPIO, _USART_GPIO_USART_TX);
+        else
+            gpio_clear(_USART_GPIO, _USART_GPIO_USART_TX);
+    }
+
+    if (type == 4) {  // protocol
+        if (startend)
+            gpio_set(_USART_GPIO, _USART_GPIO_USART_RX);
+        else
+            gpio_clear(_USART_GPIO, _USART_GPIO_USART_RX);
+    }
+
+
+
+
+#if 0 //TODO old code
     static u32 last_time[2][100];
     static u32 loop_time[4][101];
     static u32 loop_pos[4] = {-1, -1, -1, -1};
@@ -401,13 +430,14 @@ void debug_timing(u32 type, int startend)
                 avg_loop[t] /= 99;
             avg_last[0] /= 99;
             avg_last[1] /= 99;
-            printf("Avg: radio: %d mix: %d med: %d/%d low: %d/%d\n", avg_loop[3], avg_loop[2], avg_loop[1], avg_last[1], avg_loop[0], avg_last[0]);
-            printf("Max: radio: %d mix: %d med: %d/%d low: %d/%d\n", max_loop[3], max_loop[2], max_loop[1], max_last[1], max_loop[0], max_last[0]);
+            printf("Avg: radio: %5d mix: %5d med: %5d/%5d low: %5d/%5d\n", avg_loop[3], avg_loop[2], avg_loop[1], avg_last[1], avg_loop[0], avg_last[0]);
+            printf("Max: radio: %5d mix: %5d med: %5d/%5d low: %5d/%5d\n", max_loop[3], max_loop[2], max_loop[1], max_last[1], max_loop[0], max_last[0]);
             memset(max_loop, 0, sizeof(max_loop));
             max_last[0] = 0;
             max_last[1] = 0;
         }
     }
+#endif
 }
 #endif
 

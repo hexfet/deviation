@@ -25,6 +25,7 @@
 
 void UART_Initialize()
 {
+return;  //TODO remove
     /* Enable clocks for GPIO port containing _USART and USART */
     rcc_peripheral_enable_clock(&_USART_RCC_APB_ENR_IOP,   _USART_RCC_APB_ENR_IOP_EN);
     rcc_peripheral_enable_clock(&_USART_RCC_APB_ENR_USART, _USART_RCC_APB_ENR_USART_EN);
@@ -34,10 +35,10 @@ void UART_Initialize()
 
     /* Setup GPIO pin GPIO_USARTX_TX on USART GPIO port for transmit.
        Set normal function to input as this is mode reverted to in half-duplex receive */
-    gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, _USART_GPIO_USART_RX);
-    gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, _USART_GPIO_USART_TX);
+    gpio_set_mode(_USART_GPIO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, _USART_GPIO_USART_RX);
+    gpio_set_mode(_USART_GPIO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, _USART_GPIO_USART_TX);
     gpio_set_mode(_USART_GPIO, GPIO_MODE_OUTPUT_50_MHZ,
-                    GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, _USART_GPIO_USART_TX);
+                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, _USART_GPIO_USART_TX);
 
     /* Setup UART parameters. */
     UART_SetDataRate(0);
