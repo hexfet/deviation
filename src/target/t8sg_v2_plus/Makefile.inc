@@ -5,6 +5,10 @@ FONTS        = filesystem/$(FILESYSTEM)/media/12normal.fon \
                filesystem/$(FILESYSTEM)/media/04b03.fon
 LANGUAGE    := devo10
 
+CRC_OFFSET := 8192
+OPTIMIZE_DFU := 1
+MODULAR := 0x20004000
+
 include $(SDIR)/target/common/devo/Makefile.inc
 
 ifdef BUILD_TARGET
