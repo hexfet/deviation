@@ -736,7 +736,8 @@ static u16 frskyx_cb() {
       set_start(channr);
       CC2500_SetPower(Model.tx_power);
       CC2500_Strobe(CC2500_SFRX);
-      if (mixer_sync != MIX_DONE && mixer_runtime < 2000) mixer_runtime += 50;
+      set_telemetry(TELEM_FRSKY_TEMP1, mixer_runtime);
+      if (mixer_sync != MIX_DONE && mixer_runtime < 2000) mixer_runtime += 10;
       frskyX_data_frame();
       CC2500_Strobe(CC2500_SIDLE);
       CC2500_WriteData(packet, packet[0]+1);
@@ -904,7 +905,7 @@ static int get_tx_id()
 static void initialize(int bind)
 {
     CLOCK_StopTimer();
-    mixer_runtime = 50;
+    mixer_runtime = 10;
 
     // initialize statics since 7e modules don't initialize
     fine = Model.proto_opts[PROTO_OPTS_FREQFINE];
