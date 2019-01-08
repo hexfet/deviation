@@ -736,7 +736,9 @@ static u16 frskyx_cb() {
       set_start(channr);
       CC2500_SetPower(Model.tx_power);
       CC2500_Strobe(CC2500_SFRX);
+#ifndef MODULAR
       set_telemetry(TELEM_FRSKY_TEMP1, mixer_runtime);
+#endif
       if (mixer_sync != MIX_DONE && mixer_runtime < 2000) mixer_runtime += 10;
       frskyX_data_frame();
       CC2500_Strobe(CC2500_SIDLE);
