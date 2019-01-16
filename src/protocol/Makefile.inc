@@ -55,6 +55,7 @@ PROTO_MODULES += $(ODIR)/protocol/e015.mod
 PROTO_MODULES += $(ODIR)/protocol/ncc1701.mod
 PROTO_MODULES += $(ODIR)/protocol/v911s.mod
 PROTO_MODULES += $(ODIR)/protocol/gd00x.mod
+PROTO_MODULES += $(ODIR)/protocol/sbus.mod
 
 ALL += $(PROTO_MODULES)
 else #BUILD_TARGET
@@ -276,6 +277,10 @@ $(ODIR)/protocol/v911s.mod : $(ODIR)/v911s_nrf24l01.bin
     
 $(ODIR)/protocol/gd00x.mod : $(ODIR)/gd00x_nrf24l01.bin
 	@echo Building 'gd00x' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+    
+$(ODIR)/protocol/sbus.mod : $(ODIR)/sbus_uart.bin
+	@echo Building 'sbus' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
     
 endif #BUILD_TARGET
