@@ -3,8 +3,8 @@ FILESYSTEMS := common base_fonts 128x64x1
 DFU_ARGS    := -c 7 -b 0x08003000
 FONTS        = filesystem/$(FILESYSTEM)/media/12normal.fon \
                filesystem/$(FILESYSTEM)/media/04b03.fon
-LANGUAGE    := devo10
 
+MODULAR      := 0x20004000
 OPTIMIZE_DFU := 1
 
 include $(SDIR)/target/common/devo/Makefile.inc
