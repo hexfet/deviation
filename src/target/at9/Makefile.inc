@@ -70,6 +70,7 @@ CFLAGS_clock_isr = -fno-lto
 CFLAGS_usb_isr = -fno-lto
 CFLAGS_ppmin_isr = -fno-lto
 CFLAGS_uart_isr = -fno-lto
+CFLAGS_tx_buttons_isr = -fno-lto
 
 $(TARGET).bin: $(TARGET).elf
 	$(CP) -O binary $< $@
