@@ -48,6 +48,8 @@ SRC_C := $(filter-out $(SDIR)/target/common/stm32/spi_flash.c, $(SRC_C))
 endif
 
 CFLAGS   = -D"assert_param(x)=" -DSTM32F10X_HD -DSTM32F1 -mcpu=cortex-m3 -mthumb -mfix-cortex-m3-ldrd -fdata-sections -ffunction-sections -I$(SDIR)/target/common/devo/msc2/lib -I$(SDIR)/target/common/devo/msc2 -I$(SDIR)/libopencm3/include -I$(SDIR)/target/common/filesystems -fno-builtin-printf -Os --specs=nano.specs
+CFLAGS  += -flto -ffat-lto-objects -fwhole-program
+
 ifeq "$(HAS_4IN1_FLASH)" "1"
 CFLAGS  += -D"HAS_4IN1_FLASH=1"
 endif
@@ -61,6 +63,13 @@ LFLAGS2  = -Wl,-T$(LINKFILE)
 
 
 else #BUILD_TARGET
+
+CFLAGS_pwm_isr = -fno-lto
+CFLAGS_err_isr = -fno-lto
+CFLAGS_clock_isr = -fno-lto
+CFLAGS_usb_isr = -fno-lto
+CFLAGS_ppmin_isr = -fno-lto
+CFLAGS_uart_isr = -fno-lto
 
 $(TARGET).bin: $(TARGET).elf
 	$(CP) -O binary $< $@
