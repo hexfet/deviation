@@ -85,6 +85,7 @@ CFLAGS_clock_isr = -fno-lto
 CFLAGS_usb_isr = -fno-lto
 CFLAGS_ppmin_isr = -fno-lto
 CFLAGS_uart_isr = -fno-lto
+CFLAGS_soft_serial_isr = -fno-lto
 
 $(TARGET).bin: $(TARGET).elf
 ifdef OPTIMIZE_DFU

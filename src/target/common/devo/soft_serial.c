@@ -40,7 +40,7 @@ u8 data_byte;
 u8 bit_pos;
 sser_callback_t *soft_rx_callback;
 
-void SSER_Initialize()
+void __attribute__((__used__)) SSER_Initialize()
 {
 #if _PWM_PIN == GPIO_USART1_TX
     UART_Stop();  // disable USART1 for GPIO PA9 & PA10 (Trainer Tx(PA9) & Rx(PA10))
@@ -69,7 +69,7 @@ void SSER_Initialize()
     timer_enable_irq(TIM6, TIM_DIER_UIE);
 }
 
-void SSER_StartReceive(sser_callback_t *isr_callback)
+void __attribute__((__used__)) SSER_StartReceive(sser_callback_t *isr_callback)
 {
     soft_rx_callback = isr_callback;
 
@@ -81,7 +81,7 @@ void SSER_StartReceive(sser_callback_t *isr_callback)
     }
 }
 
-void SSER_Stop()
+void __attribute__((__used__)) SSER_Stop()
 {
     SSER_StartReceive(NULL);
     timer_disable_counter(TIM6);
