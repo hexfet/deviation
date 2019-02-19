@@ -51,13 +51,13 @@ const char * radio_tx_power_val(enum Radio radio, enum TxPower power) {
     case CC2500:
     case A7105:
     case MULTIMOD:
-        power = RADIO_TX_POWER_COUNT[radio]-1;
+        if (power >= RADIO_TX_POWER_COUNT[radio]) power = RADIO_TX_POWER_COUNT[radio]-1;
         return std_powers[power];
     case NRF24L01:
-        power = RADIO_TX_POWER_COUNT[radio]-1;
+        if (power >= RADIO_TX_POWER_COUNT[radio]) power = RADIO_TX_POWER_COUNT[radio]-1;
         return nrf_powers[power];
     case R9M:
-        power = RADIO_TX_POWER_COUNT[radio]-1;
+        if (power >= RADIO_TX_POWER_COUNT[radio]) power = RADIO_TX_POWER_COUNT[radio]-1;
         return r9m_powers[power];
     default:
         return std_powers[TXPOWER_LAST-1];
