@@ -17,7 +17,7 @@
 
 #include "crsf.h"
 
-#define CRSF_MAX_PARAMS  45   // one extra required, max observed is 40 in Nano RX
+#define CRSF_MAX_PARAMS  95   // one extra required, max observed is 40 in Nano RX
 #ifndef EMULATOR
 crsf_param_t crsf_params[CRSF_MAX_PARAMS];
 #else
@@ -36,6 +36,8 @@ static u8 params_loaded;     // if not zero, number displayed so far for current
 static u8 device_idx;   // current device index
 static u8 next_param;   // parameter and chunk currently being read
 static u8 next_chunk;
+static u8 max_chunks;  // for debugging
+static enum data_type last_param_type;
 
 static struct {
     crsf_param_t *param;
@@ -45,7 +47,7 @@ static struct {
 } command;
 
 #define CRSF_MAX_CHUNK_SIZE   58   // 64 - header - type - destination - origin
-#define CRSF_MAX_CHUNKS        4   // not in specification. Max observed is 3 for Nano RX
+#define CRSF_MAX_CHUNKS       10   // not in specification. Max observed is 3 for Nano RX
 static char recv_param_buffer[CRSF_MAX_CHUNKS * CRSF_MAX_CHUNK_SIZE];
 static char *recv_param_ptr;
 
@@ -61,9 +63,9 @@ static void crsfdevice_init() {
     next_param = 1;
     next_chunk = 0;
     recv_param_ptr = recv_param_buffer;
+    next_string = mp->strings;
 #ifndef EMULATOR
     params_loaded = 0;
-    next_string = mp->strings;
     memset(crsf_params, 0, sizeof crsf_params);
 #endif
 }
@@ -518,6 +520,7 @@ static void add_param(u8 *buffer, u8 num_bytes) {
             return;
         } else {
             next_chunk += 1;
+            if (next_chunk > max_chunks) max_chunks = next_chunk;
             CRSF_read_param(device_idx, next_param, next_chunk);
         }
         return;
@@ -534,6 +537,7 @@ static void add_param(u8 *buffer, u8 num_bytes) {
             parameter->id = buffer[3];
             parameter->parent = *recv_param_ptr++;
             parameter->type = *recv_param_ptr & 0x7f;
+last_param_type = parameter->type;  //TODO debugging
             if (!update) {
                 parameter->hidden = *recv_param_ptr++ & 0x80;
                 parameter->name = alloc_string(strlen(recv_param_ptr)+1);

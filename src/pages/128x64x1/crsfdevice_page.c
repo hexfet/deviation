@@ -98,12 +98,17 @@ static int row_cb(int absrow, int relrow, int y, void *data) {
 
 void show_page(int folder) {
     GUI_RemoveAllObjects();
+#if 0  // debugging
     if (count_params_loaded() == crsf_devices[device_idx].number_of_params) {
         PAGE_ShowHeader(crsf_devices[device_idx].name);
     } else {
         snprintf(tempstring, sizeof tempstring, "%s %s", crsf_devices[device_idx].name, _tr_noop("LOADING"));
         PAGE_ShowHeader(tempstring);
     }
+#endif
+snprintf(tempstring, sizeof tempstring, "%ld %d %d %d",  //TODO
+    (int)(next_string - mp->strings), params_loaded, max_chunks, last_param_type);
+PAGE_ShowHeader(tempstring);
     GUI_CreateScrollable(&gui->scrollable, 0, HEADER_HEIGHT, LCD_WIDTH,
         LCD_HEIGHT - HEADER_HEIGHT, LINE_SPACE, folder_rows(folder),
         row_cb, NULL, NULL, NULL);
