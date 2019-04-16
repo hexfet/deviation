@@ -70,14 +70,13 @@ static void crsfdevice_init() {
 
 crsf_param_t *current_param(int absrow) {
     int idx = 0;
-    crsf_param_t *param = crsf_params;
 
-    while (param->id && (param->parent != current_folder || param->hidden)) param++;
-    while (idx++ != absrow) {
-        param++;
-        while (param->id && (param->parent != current_folder || param->hidden)) param++;
+    for (int i=0; i < crsf_devices[device_idx].number_of_params; i++) {
+        if (!crsf_params[i].id) break;
+        if (crsf_params[i].parent != current_folder || crsf_params[i].hidden) continue;
+        if (idx++ == absrow) return &crsf_params[i];
     }
-    return param;
+    return NULL;
 }
 
 static const char *current_text(crsf_param_t *param) {
