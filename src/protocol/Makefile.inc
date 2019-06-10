@@ -63,6 +63,7 @@ PROTO_MODULES += $(ODIR)/protocol/sumd.mod
 PROTO_MODULES += $(ODIR)/protocol/scancyrf.mod
 PROTO_MODULES += $(ODIR)/protocol/xn297dmp.mod
 PROTO_MODULES += $(ODIR)/protocol/e010.mod
+PROTO_MODULES += $(ODIR)/protocol/propel.mod
 
 ALL += $(PROTO_MODULES)
 else #BUILD_TARGET
@@ -316,5 +317,9 @@ $(ODIR)/protocol/xn297dmp.mod : $(ODIR)/xn297dump_nrf24l01.bin
 
 $(ODIR)/protocol/e010.mod : $(ODIR)/e010_cc2500.bin
 	@echo Building 'e010' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/propel.mod : $(ODIR)/propel_nrf24l01.bin
+	@echo Building 'propel' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 endif #BUILD_TARGET
