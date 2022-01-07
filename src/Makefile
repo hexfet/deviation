@@ -322,7 +322,7 @@ ifeq "$(TYPE)" "dev"
 else
 	../utils/check_string_size.py -target $(FILESYSTEM) -objdir $(ODIR) -quiet
 endif
-	../utils/run_linter.py --diff --skip-github --no-fail
+	../utils/run_linter.py --diff --skip-github --no-fail --debug
 
 ######################
 #Necessary Font files#

@@ -54,15 +54,21 @@ ERROR_EXIT_STATUS = 1
 
 URL_CACHE = {}
 GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN')
-TRAVIS = os.environ.get('TRAVIS')
-TRAVIS_PULL_REQUEST = os.environ.get('TRAVIS_PULL_REQUEST')
-TRAVIS_PULL_REQUEST_SHA = os.environ.get('TRAVIS_PULL_REQUEST_SHA')
-TRAVIS_BRANCH = os.environ.get('TRAVIS_BRANCH')
-TRAVIS_REPO_SLUG = os.environ.get('TRAVIS_REPO_SLUG')
+#TRAVIS = os.environ.get('TRAVIS')
+#TRAVIS_PULL_REQUEST = os.environ.get('TRAVIS_PULL_REQUEST')
+#TRAVIS_PULL_REQUEST_SHA = os.environ.get('TRAVIS_PULL_REQUEST_SHA')
+#TRAVIS_REPO_SLUG = os.environ.get('TRAVIS_REPO_SLUG')
 
-if TRAVIS_PULL_REQUEST == 'false':
-    TRAVIS_PULL_REQUEST = False
+#if TRAVIS_PULL_REQUEST == 'false':
+#    TRAVIS_PULL_REQUEST = False
 
+ACTIONS = os.environ.get('GITHUB_ACTIONS')
+ACTIONS_PULL_REQUEST = os.environ.get('ACTIONS_PULL_REQUEST')
+ACTIONS_PULL_REQUEST_SHA = os.environ.get('GITHUB_SHA')
+ACTIONS_REPO_SLUG = os.environ.get('GITHUB_REPOSITORY')
+
+if ACTIONS_PULL_REQUEST == None:
+    ACTIONS_PULL_REQUEST = False
 
 def main():
     """Main function"""
@@ -95,16 +101,14 @@ def main():
     else:
         path_delta = None
 
-    logging.debug("TRAVIS_PULL_REQUEST:     %s", TRAVIS_PULL_REQUEST)
-    logging.debug("TRAVIS_PULL_REQUEST_SHA: %s", TRAVIS_PULL_REQUEST_SHA)
-    logging.debug("TRAVIS_BRANCH:           %s", TRAVIS_BRANCH)
-    logging.debug("TRAVIS_REPO_SLUG:        %s", TRAVIS_REPO_SLUG)
+    logging.debug("GITHUB_TOKEN:     %s", GITHUB_TOKEN)
+    logging.debug("ACTIONS:     %s", ACTIONS)
+    logging.debug("ACTIONS_PULL_REQUEST:     %s", ACTIONS_PULL_REQUEST)
+    logging.debug("ACTIONS_PULL_REQUEST_SHA: %s", ACTIONS_PULL_REQUEST_SHA)
+    logging.debug("ACTIONS_REPO_SLUG:        %s", ACTIONS_REPO_SLUG)
     changed = {}
     if args.diff:
-        if TRAVIS and not TRAVIS_PULL_REQUEST:
-            # FIXME: This shouldn't be needed, but not sure why TRAVIS is so special
-            return
-        if TRAVIS:
+        if ACTIONS:
             changed = get_changed_lines_from_pr()
         else:
             changed = get_changed_lines_from_git()
@@ -113,21 +117,21 @@ def main():
 
     paths = filter_paths(args.path, changed, pwd)
     violations = run_lint(paths, changed, path_delta)
-    if GITHUB_TOKEN and TRAVIS_PULL_REQUEST and not args.skip_github:
+    if GITHUB_TOKEN and ACTIONS_PULL_REQUEST and not args.skip_github:
         update_github_status(violations)
 
 
 def get_changed_lines_from_pr():
     """Read patch from TravisCI and determine line-numbers that have changed"""
-    url = 'https://api.github.com/repos/{}/pulls/{}'.format(TRAVIS_REPO_SLUG,
-                                                            TRAVIS_PULL_REQUEST)
+    url = 'https://api.github.com/repos/{}/pulls/{}'.format(ACTIONS_REPO_SLUG,
+                                                            ACTIONS_PULL_REQUEST)
     diff = get_url(url, {"Accept": "application/vnd.github.v3.diff"}).split('\n')
     return get_changed_lines_from_diff(diff)
 
 
 def get_changed_lines_from_git():
     """Compute diff from current vs master and determine line-numbers that have changed"""
-    master = "master"
+    master = "origin/master"
     base = system(["git", "merge-base", "HEAD", master]).rstrip()
     diff = system(["git", "diff", base]).rstrip().split("\n")
     return get_changed_lines_from_diff(diff)
@@ -251,7 +255,7 @@ def update_github_status(violations):
     """Remove old status and push new status messages to github with any found issues"""
     clean_old_comments()
 
-    url = 'https://api.github.com/repos/{}/pulls/{}'.format(TRAVIS_REPO_SLUG, TRAVIS_PULL_REQUEST)
+    url = 'https://api.github.com/repos/{}/pulls/{}'.format(ACTIONS_REPO_SLUG, ACTIONS_PULL_REQUEST)
     # _pr = json.loads(get_url(url))
     #status_url = _pr['statuses_url']
     diff = get_url(url, {"Accept": "application/vnd.github.v3.diff"}).split('\n')
@@ -292,13 +296,13 @@ def format_msg(header, msgs, skipfile=False):
 def clean_old_comments():
     """Remove old lint messages from github PR"""
     url = 'https://api.github.com/repos/{}/pulls/{}/comments'.format(
-        TRAVIS_REPO_SLUG, TRAVIS_PULL_REQUEST)
+        ACTIONS_REPO_SLUG, ACTIONS_PULL_REQUEST)
     comments = json.loads(get_url(url))
     for comment in comments:
         if comment['body'].startswith(LINT_ERROR):
             delete_comment("pulls", comment['id'])
     url = 'https://api.github.com/repos/{}/issues/{}/comments'.format(
-        TRAVIS_REPO_SLUG, TRAVIS_PULL_REQUEST)
+        ACTIONS_REPO_SLUG, ACTIONS_PULL_REQUEST)
     comments = json.loads(get_url(url))
     for comment in comments:
         if comment['body'].startswith(UNMATCHED_LINT_ERROR):
@@ -381,7 +385,7 @@ def get_url(url, headers=None):
         headers = {}
     key = get_cache_key(url, headers)
     if key not in URL_CACHE:
-        headers['Authorization'] = 'token ' + get_token()
+        headers['Authorization'] = get_token()
         request = urllib.request.Request(url, None, headers)
         res = urllib.request.urlopen(request)
         raise_for_status(url, res)
@@ -391,16 +395,17 @@ def get_url(url, headers=None):
 
 def get_token():
     """Return github token"""
+    return 'Bearer ' + GITHUB_TOKEN
     token = zlib.decompress(binascii.unhexlify(GITHUB_TOKEN))
     length = len(token)
-    return ''.join(chr(a ^ b)
-                   for a, b in zip(token, (TRAVIS_REPO_SLUG.encode('utf-8') * length)[:length]))
+    return 'token '.join(chr(a ^ b)
+                   for a, b in zip(token, (ACTIONS_REPO_SLUG.encode('utf-8') * length)[:length]))
 
 
 def post_status(state, context, description):
     """Send status update to GitHub"""
     url = 'https://api.github.com/repos/{}/pulls/{}'.format(
-        TRAVIS_REPO_SLUG, TRAVIS_PULL_REQUEST)
+        ACTIONS_REPO_SLUG, ACTIONS_PULL_REQUEST)
     _pr = json.loads(get_url(url))
     url = _pr['statuses_url']
     data = {
@@ -408,7 +413,7 @@ def post_status(state, context, description):
         'context': context,
         'description': description
     }
-    headers = {'Authorization': 'token ' + get_token()}
+    headers = {'Authorization': get_token()}
 
     logging.debug("POST: %s", url)
     logging.debug("Data: %s", json.dumps(data))
@@ -420,14 +425,14 @@ def post_status(state, context, description):
 def post_pull_comment(filename, offset, message):
     """Send updated comment to github PR for specfifc failure"""
     url = 'https://api.github.com/repos/{}/pulls/{}/comments'.format(
-        TRAVIS_REPO_SLUG, TRAVIS_PULL_REQUEST)
+        ACTIONS_REPO_SLUG, ACTIONS_PULL_REQUEST)
     data = {
-        'commit_id': TRAVIS_PULL_REQUEST_SHA,
+        'commit_id': ACTIONS_PULL_REQUEST_SHA,
         'path': filename,
         'position': offset,
         'body': message,
         }
-    headers = {'Authorization': 'token ' + get_token()}
+    headers = {'Authorization': get_token()}
     logging.debug("POST: %s", url)
     logging.debug("Data: %s", json.dumps(data))
 
@@ -445,11 +450,11 @@ def post_pull_comment(filename, offset, message):
 def post_issue_comment(message):
     """Send lint status to github PR"""
     url = 'https://api.github.com/repos/{}/issues/{}/comments'.format(
-        TRAVIS_REPO_SLUG, TRAVIS_PULL_REQUEST)
+        ACTIONS_REPO_SLUG, ACTIONS_PULL_REQUEST)
     data = {
         'body': message,
         }
-    headers = {'Authorization': 'token ' + get_token()}
+    headers = {'Authorization': get_token()}
     logging.debug("POST: %s", url)
     logging.debug("Data: %s", json.dumps(data))
 
@@ -461,8 +466,8 @@ def post_issue_comment(message):
 def delete_comment(_type, _id):
     """Delete a single comment from a github PR"""
     url = 'https://api.github.com/repos/{}/{}/comments/{}'.format(
-        TRAVIS_REPO_SLUG, _type, _id)
-    headers = {'Authorization': 'token ' + get_token()}
+        ACTIONS_REPO_SLUG, _type, _id)
+    headers = {'Authorization': get_token()}
     logging.debug("DELETE: %s", url)
 
     try:

@@ -2,12 +2,19 @@ name: Deviation
 
 on:
   push:
-    branches: [ master, github_actions ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+env:
+  PYTHONWARNINGS: "ignore:A true SSLContext object is not available,ignore:An HTTPS request has been made"
+  #  GITHUB_TOKEN: "789c538d758e0a718c8ae537b7f6656776e20d768de18d546014e20876e1898933cd94648f75e06117e20000b71f080d"
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ACTIONS_PULL_REQUEST: ${{ github.event.number }}
+  
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -16,42 +23,117 @@ jobs:
 
     strategy:
       matrix:
+#        target:
+#          - zip_devo8
+#          - zip_devo10
+#          - zip_devo12
+#          - zip_devo7e
+#          - zip_devof12e
+#          - zip_t8sg
+#          - zip_at9
+#          - zip_devof7
+#          - zip_t12
+#          - zip_emu_devo8
+#          - zip_win_emu_devo8
+#          - test
         include:
-#          - stage: nightly
+          - stage: nightly
+            target: zip_devo8
 #            target: "zips winzips"
 #          - stage: release
 #            target: "zips winzips"
 #          - stage: build
 #            target: lint
-          - target: zip_devo8
-          - target: zip_devo10
-          - target: zip_devo12
-          - target: zip_devo7e
-          - target: zip_devof12e
-          - target: zip_t8sg
-          - target: zip_at9
-          - target: zip_devof7
-          - target: zip_t12
-#          - target: zip_win_emu_devo8
-          - target: zip_emu_devo8
-#          - target: test
 
 
+#          pip3 install --user cpplint==1.3.0
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v2
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install libfltk1.3-dev
+          sudo apt-get install gcovr
+          sudo apt-get install gettext
+          sudo pip3 install cpplint
+          pip3 install --user cpp-coveralls
+          echo "$HOME/gcc-arm-none-eabi-8-2018-q4-major/bin" >> $GITHUB_PATH
+      - name: Cache dirs
+        id: cache-dirs
+        uses: actions/cache@v2
         with:
-          submodules: true
+          key: ${{ runner.os }}-1
+          path: |
+            ~/gcc-arm-none-eabi-8-2018-q4-major
       - name: Install arm-none-eabi-gcc
+        if: steps.cache-dirs.outputs.cache-hit != 'true'
         run: |
           pushd $HOME
           curl --retry 10 --retry-max-time 120 -L \
              "https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2" | tar xfj -
           popd
-          echo "$HOME/gcc-arm-none-eabi-8-2018-q4-major/bin" >> $GITHUB_PATH
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Compile and link
         run: |
           pushd src
           make ${{ matrix.target }}
           popd
+      - name: Run tests
+        if: matrix.target == 'test'
+        run: |
+          pushd src
+          ./test.elf
+          ../utils/coverage-summary.sh
+          coveralls -r . -b . --gcov-options '\-lp' -E '.*/tests/test_.*' -E '.*/objs/' || true;
+          popd
+      - name: Install documentation software
+        if: matrix.stage == 'nightly' || matrix.stage == 'release' 
+        run: |
+          #pip3 install --user urllib3==1.26.5 transifex-client
+          #pip3 install --user transifex-client
+          curl --retry 10 --retry-max-time 120 -L \
+             "https://github.com/transifex/cli/releases/download/v1.0.0/tx-linux-amd64.tar.gz" | tar xzf -
+          ls -l
+          echo "PATH=$PATH"
+          echo "GITHUB_PATH=$GITHUB_PATH"
+          tx
+          #openssl aes-256-cbc -K $encrypted_54cd4d6ff016_key -iv $encrypted_54cd4d6ff016_iv -in install_nightlies.tar.enc -out install_nightlies.tar -d
+          #tar -xf install_nightlies.tar
+          #rm -f install_nightlies.tar
+      - name: Config documentation software
+        if: matrix.stage == 'nightly'
+        run: |
+         echo "[https://www.transifex.com]" > .transifexrc;
+         echo "hostname = https://www.transifex.com" >> .transifexrc;
+         echo "password = $TX_PASSWD" >> .transifexrc;
+         echo "username = api" >> .transifexrc
+         git config --global user.email "travis@travis-ci.org";
+         git config --global user.name "Travis CI";
+         git config --global credential.helper store;
+         echo "https://$GH_TOKEN:x-oauth-basic@github.com" >> ~/.git-credentials
+      - name: Run documentation software
+        if: matrix.stage == 'nightly'
+        run: |
+          # 'make language' changes order randomly.  Needs to be consistent before enabling this
+          pushd src; make language; popd;
+          if [[ `git diff src/fs/language/| grep -E -v '^(diff|index|---|\+\+\+|@@|-#|\+#| |$)'` == "" ]]; then
+              # Do not update if only comments have changed
+              echo "Only comment-changes found in deviation.po.  Ignoring"
+              git checkout -- src/fs/language/
+          else
+              tx push -s
+              git diff
+          fi
+          echo "which tx $(which tx)"
+          tx pull -f -a
+          ./utils/clean_transifex_merge.py src/fs/language/locale
+          # git add src/fs/language
+          # git commit -m "`utils/get_altered_languages.py 'Updating translations from Transifex'`"
+          # git push origin HEAD:$TRAVIS_BRANCH > /dev/null 2>&1 && echo "Successfully uploaded new translations to Github."
+          # check if we've already built a nightly from the current commit
+          if ! utils/needs_nightly_rebuild.py; then
+              echo "travis_terminate 0"
+          fi
