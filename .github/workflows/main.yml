@@ -24,16 +24,16 @@ jobs:
 #          - stage: build
 #            target: lint
           - target: zip_devo8
-#          - target: zip_devo10
-#          - target: zip_devo12
-#          - target: zip_devo7e
-#          - target: zip_devof12e
-#          - target: zip_t8sg
-#          - target: zip_at9
-#          - target: zip_devof7
-#          - target: zip_t12
+          - target: zip_devo10
+          - target: zip_devo12
+          - target: zip_devo7e
+          - target: zip_devof12e
+          - target: zip_t8sg
+          - target: zip_at9
+          - target: zip_devof7
+          - target: zip_t12
 #          - target: zip_win_emu_devo8
-#          - target: zip_emu_devo8
+          - target: zip_emu_devo8
 #          - target: test
 
 
