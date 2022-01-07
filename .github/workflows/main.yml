@@ -1,0 +1,57 @@
+name: Deviation
+
+on:
+  push:
+    branches: [ master, github_actions ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+#          - stage: nightly
+#            target: "zips winzips"
+#          - stage: release
+#            target: "zips winzips"
+#          - stage: build
+#            target: lint
+          - target: zip_devo8
+#          - target: zip_devo10
+#          - target: zip_devo12
+#          - target: zip_devo7e
+#          - target: zip_devof12e
+#          - target: zip_t8sg
+#          - target: zip_at9
+#          - target: zip_devof7
+#          - target: zip_t12
+#          - target: zip_win_emu_devo8
+#          - target: zip_emu_devo8
+#          - target: test
+
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Install arm-none-eabi-gcc
+        run: |
+          pushd $HOME
+          curl --retry 10 --retry-max-time 120 -L \
+             "https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2" | tar xfj -
+          popd
+          echo "$HOME/gcc-arm-none-eabi-8-2018-q4-major/bin" >> $GITHUB_PATH
+      - name: Compile and link
+        run: |
+          pushd src
+          make ${{ matrix.target }}
+          popd
