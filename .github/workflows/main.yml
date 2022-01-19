@@ -96,10 +96,6 @@ jobs:
           #pip3 install --user transifex-client
           curl --retry 10 --retry-max-time 120 -L \
              "https://github.com/transifex/cli/releases/download/v1.0.0/tx-linux-amd64.tar.gz" | tar xzf -
-          ls -l
-          echo "PATH=$PATH"
-          echo "GITHUB_PATH=$GITHUB_PATH"
-          tx
           #openssl aes-256-cbc -K $encrypted_54cd4d6ff016_key -iv $encrypted_54cd4d6ff016_iv -in install_nightlies.tar.enc -out install_nightlies.tar -d
           #tar -xf install_nightlies.tar
           #rm -f install_nightlies.tar
@@ -124,11 +120,10 @@ jobs:
               echo "Only comment-changes found in deviation.po.  Ignoring"
               git checkout -- src/fs/language/
           else
-              tx push -s
+              ./tx push -s
               git diff
           fi
-          echo "which tx $(which tx)"
-          tx pull -f -a
+          ./tx pull -f -a
           ./utils/clean_transifex_merge.py src/fs/language/locale
           # git add src/fs/language
           # git commit -m "`utils/get_altered_languages.py 'Updating translations from Transifex'`"
