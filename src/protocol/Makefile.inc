@@ -69,6 +69,7 @@ endif
 PROTO_MODULES += $(ODIR)/protocol/e010.mod
 PROTO_MODULES += $(ODIR)/protocol/v761.mod
 PROTO_MODULES += $(ODIR)/protocol/redpine.mod
+PROTO_MODULES += $(ODIR)/protocol/traxxas.mod
 
 ALL += $(PROTO_MODULES)
 else #BUILD_TARGET
@@ -334,5 +335,9 @@ $(ODIR)/protocol/v761.mod : $(ODIR)/v761_nrf24l01.bin
 
 $(ODIR)/protocol/redpine.mod : $(ODIR)/redpine_cc2500.bin
 	@echo Building 'redpine' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/traxxas.mod : $(ODIR)/traxxas_cyrf6936.bin
+	@echo Building 'traxxas' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 endif #BUILD_TARGET

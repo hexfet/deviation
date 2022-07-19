@@ -185,7 +185,7 @@ static void HITEC_change_chan_fast()
 // Channel value -125%<->125% is scaled to 16bit value with no limit
 #define CHANNEL_MAX_100 1844    //  100%
 #define CHANNEL_MIN_100 204     //  100%
-u16 convert_channel_16b_nolimit(uint8_t num, int16_t min, int16_t max)
+static u16 convert_channel_16b_nolimit(uint8_t num, int16_t min, int16_t max)
 {
     s32 val = Channels[num] * 1024 / CHAN_MAX_VALUE + 1024;    // 0<->2047
     val=(val-CHANNEL_MIN_100)*(max-min)/(CHANNEL_MAX_100-CHANNEL_MIN_100)+min;
