@@ -55,7 +55,6 @@ static const uint8_t TRAXXAS_init_vals[][2] = {
     {CYRF_03_TX_CFG, 0x08 | CYRF_PWR_10MW},     // 8DR Mode, 32 chip codes
 };
 
-static u8 bind_counter;
 static u8 packet_count;
 static u8 phase;
 static u8 cyrfmfg_id[6];
@@ -159,10 +158,7 @@ uint16_t TRAXXAS_callback()
                 CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);         // Enable RX abort
                 CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);         // Force end state
                 CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);         // Disable RX abort
-                if(--bind_counter != 0)
-                    phase=TRAXXAS_BIND_PREP_RX;                     // Retry receiving bind packet
-                else
-                    phase=TRAXXAS_PREP_DATA;                        // Abort binding
+                phase=TRAXXAS_BIND_PREP_RX;                         // Retry receiving bind packet
             }
             return 700;
         case TRAXXAS_BIND_TX1:
@@ -204,11 +200,9 @@ void TRAXXAS_init(int bind)
     #endif
 
     if (bind) {
-        bind_counter = 100;
         phase = TRAXXAS_BIND_PREP_RX;
-        PROTOCOL_SetBindState(70000);
+        PROTOCOL_SetBindState(0xFFFFFFFF);
     } else {
-        bind_counter = 0;
         phase = TRAXXAS_PREP_DATA;
     }
 
