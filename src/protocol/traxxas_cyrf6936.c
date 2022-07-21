@@ -184,6 +184,8 @@ uint16_t TRAXXAS_callback()
 
 void TRAXXAS_init(int bind)
 { 
+    CLOCK_StopTimer();
+
     //Config CYRF registers
     for(uint8_t i = 0; i < sizeof(TRAXXAS_init_vals) / 2; i++)  
         CYRF_WriteRegister(TRAXXAS_init_vals[i][0], TRAXXAS_init_vals[i][1]);
@@ -209,6 +211,8 @@ void TRAXXAS_init(int bind)
         bind_counter = 0;
         phase = TRAXXAS_PREP_DATA;
     }
+
+    CLOCK_StartTimer(1000, TRAXXAS_callback);
 }
 
 uintptr_t TRAXXAS_Cmds(enum ProtoCmds cmd)
