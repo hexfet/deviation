@@ -273,6 +273,7 @@ u8 UART_Send(u8 *data, u16 len);
 void UART_SetDataRate(u32 bps);
 void UART_SetFormat(int bits, uart_parity parity, uart_stopbits stopbits);
 typedef void usart_callback_t(u8 ch, u8 status);
+typedef void tx_callback_t(void);
 /* callback status byte bit fields */
 #define UART_RX_RXNE (1 << 5)  //USART_SR_RXNE - rx buffer not empty
 #define UART_SR_ORE  (1 << 3)  //USART_SR_ORE  - rx buffer overrun error
@@ -283,6 +284,7 @@ void UART_StartReceive(usart_callback_t isr_callback);
 void UART_StopReceive();
 void UART_SetDuplex(uart_duplex duplex);
 void UART_SendByte(u8 x);
+void UART_SetTxCallback(tx_callback_t callback);
 typedef void sser_callback_t(u8 data);
 void SSER_StartReceive(sser_callback_t isr_callback);
 void SSER_Initialize();

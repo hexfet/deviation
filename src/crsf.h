@@ -49,12 +49,16 @@
 #define TYPE_RADIO_ID         0x3A
 
 // Frame Subtype
-#define UART_SYNC                      0xC8
-#define CRSF_SUBCOMMAND                0x10
-#define COMMAND_MODEL_SELECT_ID        0x05
+#define UART_SYNC                        0xC8
+#define CRSF_SUBCMD_INFO                 0x10
+#define SUBCMD_INFO_MODEL_ID             0x05
+
+#define CRSF_SUBCMD_GENERAL              0x0a
+#define SUBCMD_GENERAL_SPEED_PROPOSAL    0x70    // proposed new CRSF port speed (CRSF_V3)
+#define SUBCMD_GENERAL_SPEED_RESPONSE    0x71    // response to the proposed CRSF port speed (CRSF_V3)
 
 #define TELEMETRY_RX_PACKET_SIZE   64
-#define CRSF_MAX_FIXEDID          63
+#define CRSF_MAX_FIXEDID           63
 
 #if SUPPORT_CRSF_CONFIG
 
@@ -157,6 +161,7 @@ void CRSF_read_param(u8 device, u8 id, u8 chunk);
 void CRSF_set_param(crsf_param_t *param);
 void CRSF_send_command(crsf_param_t *param, enum cmd_status status);
 u8 CRSF_send_model_id(u8 fixed_id);
+u8 CRSF_baudrate_response(u8 port, u8 reply);
 u32 CRSF_read_timeout();
 void CRSF_get_elrs();
 void protocol_read_param(u8 device_idx, crsf_param_t *param);

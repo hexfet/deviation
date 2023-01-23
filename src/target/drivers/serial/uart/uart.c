@@ -192,3 +192,8 @@ void UART_SendByte(u8 x)
 {
     usart_send_blocking(UART_CFG.uart, x);
 }
+
+tx_callback_t *tx_callback;
+void UART_SetTxCallback(tx_callback_t *callback) {
+    tx_callback = callback;
+}

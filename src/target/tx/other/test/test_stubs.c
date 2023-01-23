@@ -151,6 +151,7 @@ void UART_SetFormat(int bits, uart_parity parity, uart_stopbits stopbits) {(void
 void UART_StartReceive(usart_callback_t isr_callback) {(void) isr_callback;}
 void UART_StopReceive() {}
 void UART_SetDuplex(uart_duplex duplex) {(void) duplex;}
+void UART_SetTxCallback(tx_callback_t *callback) {(void) callback;}
 
 void init_err_handler() {}
 

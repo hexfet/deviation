@@ -23,8 +23,6 @@
 
 extern volatile u8 busy;
 
-
-
 void __attribute__((__used__)) _USART_DMA_ISR(void)
 {
     DMA_IFCR(USART_DMA.dma) |= DMA_IFCR_CTCIF(USART_DMA.stream);
@@ -37,6 +35,7 @@ void __attribute__((__used__)) _USART_DMA_ISR(void)
 }
 
 extern usart_callback_t *rx_callback;
+extern tx_callback_t *tx_callback;
 void __attribute__((__used__)) _UART_ISR(void)
 {
     u8 status = USART_SR(UART_CFG.uart);
@@ -49,6 +48,7 @@ void __attribute__((__used__)) _UART_ISR(void)
             usart_set_mode(UART_CFG.uart, USART_MODE_RX);
         }
         busy = 0;
+        if (tx_callback) tx_callback();
     }
         
     if (!busy && (status & USART_SR_RXNE) && rx_callback) rx_callback(data, status);

@@ -379,13 +379,58 @@ u8 CRSF_send_model_id(u8 model_id) {
     buf_push_crc2(&crc, &crc_BA, TYPE_COMMAND_ID);
     buf_push_crc2(&crc, &crc_BA, ADDR_MODULE);
     buf_push_crc2(&crc, &crc_BA, ADDR_RADIO);
-    buf_push_crc2(&crc, &crc_BA, CRSF_SUBCOMMAND);
-    buf_push_crc2(&crc, &crc_BA, COMMAND_MODEL_SELECT_ID);
+    buf_push_crc2(&crc, &crc_BA, CRSF_SUBCMD_INFO);
+    buf_push_crc2(&crc, &crc_BA, SUBCMD_INFO_MODEL_ID);
     buf_push_crc2(&crc, &crc_BA, model_id);
     buf_push_crc(&crc, crc_BA);
     CBUF_Push(send_buf, crc);
     return 1;
 }
+
+#if 1
+u8 CRSF_baudrate_response(u8 port_id, u8 reply)
+{
+    if (CBUF_Space(send_buf) < 11) return 0;
+    u8 crc = 0;
+    u8 crc_BA = 0;
+    CBUF_Push(send_buf, ADDR_MODULE);
+    CBUF_Push(send_buf, 9);
+    buf_push_crc2(&crc, &crc_BA, TYPE_COMMAND_ID);
+    buf_push_crc2(&crc, &crc_BA, ADDR_MODULE);
+    buf_push_crc2(&crc, &crc_BA, ADDR_RADIO);
+    buf_push_crc2(&crc, &crc_BA, CRSF_SUBCMD_GENERAL);
+    buf_push_crc2(&crc, &crc_BA, SUBCMD_GENERAL_SPEED_RESPONSE);
+    buf_push_crc2(&crc, &crc_BA, port_id);
+    buf_push_crc2(&crc, &crc_BA, reply);
+    buf_push_crc(&crc, crc_BA);
+    CBUF_Push(send_buf, crc);
+    return 1;
+}
+#else
+u8 CRSF_baudrate_response(u8 port_id, u8 reply)
+{
+    (void)reply;
+
+    if (CBUF_Space(send_buf) < 14) return 0;
+    u8 crc = 0;
+    u8 crc_BA = 0;
+    CBUF_Push(send_buf, ADDR_MODULE);
+    CBUF_Push(send_buf, 12);
+    buf_push_crc2(&crc, &crc_BA, TYPE_COMMAND_ID);
+    buf_push_crc2(&crc, &crc_BA, ADDR_MODULE);
+    buf_push_crc2(&crc, &crc_BA, ADDR_RADIO);
+    buf_push_crc2(&crc, &crc_BA, CRSF_SUBCMD_GENERAL);
+    buf_push_crc2(&crc, &crc_BA, SUBCMD_GENERAL_SPEED_RESPONSE);
+    buf_push_crc2(&crc, &crc_BA, port_id);
+    buf_push_crc2(&crc, &crc_BA, 0x00);
+    buf_push_crc2(&crc, &crc_BA, 0x1e);
+    buf_push_crc2(&crc, &crc_BA, 0x84);
+    buf_push_crc2(&crc, &crc_BA, 0x80);
+    buf_push_crc(&crc, crc_BA);
+    CBUF_Push(send_buf, crc);
+    return 1;
+}
+#endif
 
 // Request parameter info from known device
 void CRSF_read_param(u8 device, u8 id, u8 chunk) {

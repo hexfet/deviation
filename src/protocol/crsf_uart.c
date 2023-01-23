@@ -33,9 +33,11 @@
 #define CRSF_CHANNELS             16
 #define CRSF_PACKET_SIZE          26
 
-static const u32 bitrates[] = { 400000, 1870000, 2250000 };
+#define CRSF_MAX_BPS              2250000  // used for TBS bitrate negotiation
+#define CRSF_TBS_AUTO             3        // protocol option index for TBS_AUTO
+static const u32 bitrates[] = { 400000, 1870000, 2250000, 400000 };
 static const char * const crsf_opts[] = {
-  _tr_noop("Bit Rate"), "400K", "1.87M", "2.25M", NULL,
+  _tr_noop("Bit Rate"), "400K", "1.87M", "2.25M", "TBS_AUTO", NULL,
   NULL
 };
 enum {
@@ -44,6 +46,15 @@ enum {
 };
 ctassert(LAST_PROTO_OPT <= NUM_PROTO_OPTS, too_many_protocol_opts);
 
+static u32 dynamic_bitrate;       // dynamic bitrate from TBS devices
+static u32 update_timestamp_ms;   // use to delay 4ms before changing bitrate
+static void update_bitrate(void) {
+    if (dynamic_bitrate && (CLOCK_getms() - update_timestamp_ms) > 4) {
+        UART_SetDataRate(dynamic_bitrate);
+        dynamic_bitrate = 0;
+        UART_SetTxCallback(NULL);
+    }
+}
 
 // crc implementation from CRSF protocol document rev7
 static const u8 crc8tab[256] = {
@@ -125,12 +136,12 @@ void protocol_read_param(u8 device_idx, crsf_param_t *param) {
     param->type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
     param->hidden = 0;            // set if hidden
     param->name = (char*)crsf_opts[0];           // Null-terminated string
-    param->value = "400K\0001.87M\0002.25M";    // must match crsf_opts
+    param->value = "400K\0001.87M\0002.25M\000TBS_AUTO";    // must match crsf_opts
     param->default_value = 0;  // size depending on data type. Not present for COMMAND.
     param->min_value = 0;        // not sent for string type
-    param->max_value = 2;        // not sent for string type
+    param->max_value = 3;        // not sent for string type
     param->changed = 0;           // flag if set needed when edit element is de-selected
-    param->max_str = &((char*)param->value)[11];        // Longest choice length for text select
+    param->max_str = &((char*)param->value)[17];        // Longest choice length for text select
     param->u.text_sel = Model.proto_opts[PROTO_OPTS_BITRATE];
 }
 
@@ -295,7 +306,7 @@ static void processCrossfireTelemetryFrame()
       break;
 
     case TYPE_RADIO_ID:
-      if (telemetryRxBuffer[3] == ADDR_RADIO && telemetryRxBuffer[5] == CRSF_SUBCOMMAND) {
+      if (telemetryRxBuffer[3] == ADDR_RADIO && telemetryRxBuffer[5] == CRSF_SUBCMD_INFO) {
         if (getCrossfireTelemetryValue(6, (s32 *)&updateInterval, 4))
           updateInterval /= 10;  // values are in 10th of micro-seconds
         if (getCrossfireTelemetryValue(10, (s32 *)&correction, 4)) {
@@ -311,6 +322,22 @@ static void processCrossfireTelemetryFrame()
       if (MODULE_IS_UNKNOWN) CRSF_ping_devices(ADDR_MODULE);
 #endif
       break;
+
+    case TYPE_COMMAND_ID:
+        if (telemetryRxBuffer[3] == ADDR_RADIO
+         && telemetryRxBuffer[5] == CRSF_SUBCMD_GENERAL
+         && telemetryRxBuffer[6] == SUBCMD_GENERAL_SPEED_PROPOSAL) {
+            u8 port_id = telemetryRxBuffer[7];
+            u32 bitrate = telemetryRxBuffer[8] << 24 | telemetryRxBuffer[9] << 16 | telemetryRxBuffer[10] << 8 | telemetryRxBuffer[11];
+            if (bitrate <= CRSF_MAX_BPS && Model.proto_opts[PROTO_OPTS_BITRATE] == CRSF_TBS_AUTO) {     // 3 = TBS_AUTO
+                // send response at current bitrate, set serial tx isr callback to update datarate after message sent
+                CRSF_baudrate_response(port_id, 1);
+                dynamic_bitrate = bitrate;
+                update_timestamp_ms = CLOCK_getms();
+                UART_SetTxCallback(update_bitrate);
+            }
+        }
+        break;
 
     case TYPE_VTX_TELEM:
       if (getCrossfireTelemetryValue(3, &value, 2))
@@ -355,7 +382,9 @@ static void processCrossfireTelemetryData() {
         
         if (telemetryRxBufferCount >= length+2) {
             if (checkCrossfireTelemetryFrameCRC()) {
-                if (telemetryRxBuffer[2] < TYPE_PING_DEVICES || telemetryRxBuffer[2] == TYPE_RADIO_ID) {
+                if (telemetryRxBuffer[2]  < TYPE_PING_DEVICES
+                 || telemetryRxBuffer[2] == TYPE_RADIO_ID
+                 || telemetryRxBuffer[2] == TYPE_COMMAND_ID) {
                     processCrossfireTelemetryFrame();     // Broadcast frame
 #if SUPPORT_CRSF_CONFIG
                     // wait for telemetry running before sending model id

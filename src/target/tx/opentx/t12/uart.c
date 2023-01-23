@@ -16,6 +16,7 @@ u8 UART_Send(u8 *data, u16 len) {
 void UART_StartReceive(usart_callback_t *isr_callback) {
     (void)isr_callback;
 }
+void UART_SetTxCallback(tx_callback_t *callback) {(void)callback;}
 
 void UART_StopReceive() {}
 void UART_SetDuplex(uart_duplex duplex) { (void)duplex; }
