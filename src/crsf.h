@@ -34,6 +34,7 @@
 #define TYPE_VTX_TELEM        0x10
 #define TYPE_LINK             0x14
 #define TYPE_CHANNELS         0x16
+#define TYPE_SUBSET_CHANNELS_PACKED         0x17
 #define TYPE_RX_ID            0x1C
 #define TYPE_TX_ID            0x1D
 #define TYPE_ATTITUDE         0x1E

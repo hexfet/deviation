@@ -47,16 +47,15 @@ enum {
 ctassert(LAST_PROTO_OPT <= NUM_PROTO_OPTS, too_many_protocol_opts);
 
 static u32 dynamic_bitrate;       // dynamic bitrate from TBS devices
-static u32 update_timestamp_ms;   // use to delay 4ms before changing bitrate
 static void update_bitrate(void) {
-    if (dynamic_bitrate && (CLOCK_getms() - update_timestamp_ms) > 4) {
+    if (dynamic_bitrate) {
         UART_SetDataRate(dynamic_bitrate);
         dynamic_bitrate = 0;
         UART_SetTxCallback(NULL);
     }
 }
 
-// crc implementation from CRSF protocol document rev7
+// crc implementation from CRSF protocol document rev7, polynom = 0xD5
 static const u8 crc8tab[256] = {
     0x00, 0xD5, 0x7F, 0xAA, 0xFE, 0x2B, 0x81, 0x54, 0x29, 0xFC, 0x56, 0x83, 0xD7, 0x02, 0xA8, 0x7D,
     0x52, 0x87, 0x2D, 0xF8, 0xAC, 0x79, 0xD3, 0x06, 0x7B, 0xAE, 0x04, 0xD1, 0x85, 0x50, 0xFA, 0x2F,
@@ -333,7 +332,6 @@ static void processCrossfireTelemetryFrame()
                 // send response at current bitrate, set serial tx isr callback to update datarate after message sent
                 CRSF_baudrate_response(port_id, 1);
                 dynamic_bitrate = bitrate;
-                update_timestamp_ms = CLOCK_getms();
                 UART_SetTxCallback(update_bitrate);
             }
         }
