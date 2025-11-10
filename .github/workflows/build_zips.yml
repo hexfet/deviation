@@ -39,6 +39,14 @@ jobs:
             echo "Expected 19 zips - aborting"
             exit 1
           fi
+      - name: Generate index.html
+        run: |
+          echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Downloads</title></head><body><h1>Available Builds</h1><ul>" > build/index.html
+          find build -type f -name '*.zip' | sort | while read file; do
+            relpath="${file#build/}"
+            echo "<li><a href=\"$relpath\">$relpath</a></li>" >> build/index.html
+          done
+          echo "</ul></body></html>" >> build/index.html          
       - name: Upload zips as artifact
         if: ${{ steps.zip_files.outputs.good_build == 'true' }}
         id: deployment
