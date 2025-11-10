@@ -39,6 +39,6 @@ jobs:
         shell: bash
         working-directory: src
         run: |
-          echo "Found ${{ steps.vars.outputs.num_zips }} zips.  Pushing"
-          echo "Build good? ${{ steps.vars.outputs.good_build }}"
+          echo "Found ${{ steps.zip_files.outputs.num_zips }} zips.  Pushing"
+          echo "Build good? ${{ steps.zip_files.outputs.good_build }}"
         
