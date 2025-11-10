@@ -21,6 +21,14 @@ jobs:
             cd /git/deviation/src
             make zip_devo10
       - name: Verify build
+        id: zip_files
+        shell: bash
+        working-directory: src
         run: |
-          ls -l
+          ls -l *zip | wc -l
+          if [[ $(ls -l *zip | wc -l) -eq 19 ]]; then
+            echo "::set-output name=good_build::true"
+          else
+            echo "::set-output name=good_build::false"
+          fi
         
