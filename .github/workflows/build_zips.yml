@@ -27,8 +27,9 @@ jobs:
         run: |
           ls -l *zip | wc -l
           if [[ $(ls -l *zip | wc -l) -eq 19 ]]; then
-            echo "::set-output name=good_build::true"
+             echo "good_build=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=good_build::false"
+            echo "good_build=false" >> $GITHUB_OUTPUT
+            exit 1
           fi
         
