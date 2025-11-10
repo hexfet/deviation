@@ -38,17 +38,17 @@ jobs:
       - name: Push to repo
         if: ${{ steps.zip_files.outputs.good_build == 'true' }}
         shell: bash
-        working-directory: src
         run: |
           echo "Found ${{ steps.zip_files.outputs.num_zips }} zips.  Pushing"
           git status
           mkdir -p build
+          ls
           git rm -f --ignore-unmatch build/*
-          mv *zip build/
+          mv src/*zip build/
           git config --global user.name "hexfet [Actions]"
           git config --global user.email "none@example.com"
           ls build
-          git add build
+          git add --force build
           git status
           # git commit -m "Zips built from latest push"
         
