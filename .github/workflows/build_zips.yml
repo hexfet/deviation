@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v5
         with:
           submodules: recursive        
       - name: Run Docker container
@@ -27,6 +27,7 @@ jobs:
         run: |
           num_zips=$(ls -l *zip | wc -l)
           echo "Found $num_zips zip files created"
+          echo "num_zips=$num_zips" >> $GITHUB_OUTPUT
           if [[ $num_zips -eq 1 ]]; then
              echo "good_build=true" >> $GITHUB_OUTPUT
           else
@@ -38,5 +39,6 @@ jobs:
         shell: bash
         working-directory: src
         run: |
-          echo "Found ${{ steps.vars.outputs.docker_tag }} zips.  Pushing"
+          echo "Found ${{ steps.vars.outputs.num_zips }} zips.  Pushing"
+          echo "Build good? ${{ steps.vars.outputs.good_build }}"
         
