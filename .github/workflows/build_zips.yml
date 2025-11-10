@@ -25,11 +25,13 @@ jobs:
         shell: bash
         working-directory: src
         run: |
-          ls -l *zip | wc -l
-          if [[ $(ls -l *zip | wc -l) -eq 19 ]]; then
+          num_zips=$(ls -l *zip | wc -l)
+          echo "Found $num_zips zip files created"
+          if [[ $num_zips -eq 19 ]]; then
              echo "good_build=true" >> $GITHUB_OUTPUT
           else
             echo "good_build=false" >> $GITHUB_OUTPUT
+            echo "Expected 19 zips - aborting"
             exit 1
           fi
         
