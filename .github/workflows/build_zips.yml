@@ -27,7 +27,7 @@ jobs:
         run: |
           num_zips=$(ls -l *zip | wc -l)
           echo "Found $num_zips zip files created"
-          if [[ $num_zips -eq 19 ]]; then
+          if [[ $num_zips -eq 1 ]]; then
              echo "good_build=true" >> $GITHUB_OUTPUT
           else
             echo "good_build=false" >> $GITHUB_OUTPUT
