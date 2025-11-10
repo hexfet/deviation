@@ -11,7 +11,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          submodules: recursive        
+          submodules: recursive
+          fetch-tags: true
       - name: Run Docker container
         uses: addnab/docker-run-action@v3
         with:
