@@ -36,7 +36,7 @@ jobs:
             exit 1
           fi
       - name: Push to repo
-        if: ${{ steps.zip_files.outputs.good_build == "true" }}
+        if: ${{ steps.zip_files.outputs.good_build == 'true' }}
         shell: bash
         working-directory: src
         run: |
