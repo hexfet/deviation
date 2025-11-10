@@ -39,14 +39,60 @@ jobs:
             echo "Expected 19 zips - aborting"
             exit 1
           fi
-      - name: Generate index.html
+      - name: Generate styled index.html
         run: |
-          echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Downloads</title></head><body><h1>Available Builds</h1><ul>" > build/index.html
+          echo "<!DOCTYPE html>" > build/index.html
+          echo "<html lang='en'><head><meta charset='utf-8'/>" >> build/index.html
+          echo "<title>Downloads</title>" >> build/index.html
+          echo "<style>
+            body {
+              font-family: system-ui, sans-serif;
+              background-color: #f9fafb;
+              color: #333;
+              padding: 2rem;
+              line-height: 1.6;
+            }
+            h1 {
+              text-align: center;
+              margin-bottom: 2rem;
+              color: #222;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+              overflow: hidden;
+            }
+            th, td {
+              padding: 12px 16px;
+              text-align: left;
+            }
+            th {
+              background-color: #f3f4f6;
+              font-weight: 600;
+            }
+            tr:nth-child(even) { background-color: #fafafa; }
+            a {
+              color: #0366d6;
+              text-decoration: none;
+            }
+            a:hover {
+              text-decoration: underline;
+            }
+          </style></head><body>" >> build/index.html
+
+          echo "<h1>Available Builds</h1><table>" >> build/index.html
+          echo "<tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
           find build -type f -name '*.zip' | sort | while read file; do
-            relpath="${file#build/}"
-            echo "<li><a href=\"$relpath\">$relpath</a></li>" >> build/index.html
+            relpath=\"${file#build/}\"
+            size=$(du -h "$file" | cut -f1)
+            mtime=$(date -r "$file" "+%Y-%m-%d %H:%M")
+            echo "<tr><td><a href=\"$relpath\">$relpath</a></td><td>$size</td><td>$mtime</td></tr>" >> build/index.html
           done
-          echo "</ul></body></html>" >> build/index.html          
+          echo "</table></body></html>" >> build/index.html
+
       - name: Upload zips as artifact
         if: ${{ steps.zip_files.outputs.good_build == 'true' }}
         id: deployment
