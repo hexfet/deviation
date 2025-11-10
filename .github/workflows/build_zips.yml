@@ -41,7 +41,6 @@ jobs:
         working-directory: src
         run: |
           echo "Found ${{ steps.zip_files.outputs.num_zips }} zips.  Pushing"
-          ls
           git status
           mkdir -p build
           git rm -f --ignore-unmatch build/*
@@ -49,7 +48,7 @@ jobs:
           git config --global user.name "hexfet [Actions]"
           git config --global user.email "none@example.com"
           ls build
+          git add build
           git status
-          # git add build
           # git commit -m "Zips built from latest push"
         
