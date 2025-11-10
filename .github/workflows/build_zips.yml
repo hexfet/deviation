@@ -26,15 +26,13 @@ jobs:
       - name: Verify build
         id: zip_files
         shell: bash
-        working-directory: src
         run: |
-          num_zips=$(ls -l *zip | wc -l)
+          num_zips=$(ls -l src/*zip | wc -l)
           echo "Found $num_zips zip files created"
           echo "num_zips=$num_zips" >> $GITHUB_OUTPUT
           if [[ $num_zips -eq 1 ]]; then
             echo "good_build=true" >> $GITHUB_OUTPUT
             mkdir -p build
-            rm -f build/*
             mv src/*zip build/
           else
             echo "good_build=false" >> $GITHUB_OUTPUT
