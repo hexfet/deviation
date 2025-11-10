@@ -34,4 +34,9 @@ jobs:
             echo "Expected 19 zips - aborting"
             exit 1
           fi
+      - name: Push to repo
+        shell: bash
+        working-directory: src
+        run: |
+          echo "Found ${{ steps.vars.outputs.docker_tag }} zips.  Pushing"
         
