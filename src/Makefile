@@ -166,6 +166,9 @@ MODULE_CFLAGS   := $(MODULE_CFLAGS) -DMODULAR=$(MODULAR)
 CFLAGS   := $(CFLAGS) -DENABLE_MODULAR=$(MODULAR)
 endif
 
+BUILD_CRSF_CONFIG ?= 0
+CFLAGS   := $(CFLAGS) -DBUILD_CRSF_CONFIG=$(BUILD_CRSF_CONFIG)
+
 CFLAGS   := $(CFLAGS) -g -Wall -Wextra -Werror=undef -I. -D$(PROGMODE) -std=gnu99 -Itarget/tx/$(FAMILY)/$(TARGET) -Igui/$(SCREENSIZE) \
             -Ipages/$(SCREENSIZE) \
             -DHGVERSION="\"${HGVERSION}\""
