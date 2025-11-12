@@ -15,6 +15,8 @@
 
 
 #include "common.h"
+
+#if SUPPORT_CRSF_CONFIG
 #include "pages.h"
 #include "gui/gui.h"
 
@@ -26,8 +28,6 @@ enum {
     MSG_Y          = 10,
 };
 #endif
-
-#if SUPPORT_CRSF_CONFIG
 
 #define LINE_HEIGHT    18
 #define HEADER_HEIGHT  40
