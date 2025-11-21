@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_crsf1:
-    name: Build all zips (BUILD_CRSF_CONFIG=1)
+    name: Build all zips (BUILD_TYPE=0)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -22,7 +22,7 @@ jobs:
             sudo /root/build.py --arm-prereq
             export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
             cd /git/deviation/src
-            BUILD_CRSF_CONFIG=1 make -j4 zips
+            BUILD_TYPE=0 make -j4 zips
       - name: Verify build and collect zips
         id: zip_files
         shell: bash
@@ -43,7 +43,7 @@ jobs:
           path: build/crsf1/
 
   build_crsf0:
-    name: Build all zips (BUILD_CRSF_CONFIG=0)
+    name: Build all zips (BUILD_TYPE=1)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -60,7 +60,7 @@ jobs:
             sudo /root/build.py --arm-prereq
             export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
             cd /git/deviation/src
-            BUILD_CRSF_CONFIG=0 make -j4 zips
+            BUILD_TYPE=1 make -j4 zips
       - name: Verify build and collect zips
         id: zip_files
         shell: bash
@@ -120,8 +120,10 @@ jobs:
             a:hover { text-decoration: underline; }
           </style></head><body>" >> build/index.html
 
+          echo "<h1>Repo</h1>" >> build/index.html
+          echo "<a src=\"https://github.com/hexfet/deviation\">Deviation@hexfet</a>" >> build/index.html
           echo "<h1>Available Builds</h1>" >> build/index.html
-          echo "<h2>CRSF enabled (BUILD_CRSF_CONFIG=1)</h2>" >> build/index.html
+          echo "<h2>LOLI, CRSF configuration (BUILD_TYPE=0)</h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
           find build/crsf1 -type f -name '*.zip' | sort | while read file; do
             relpath="${file#build/}"
@@ -131,7 +133,7 @@ jobs:
           done
           echo "</table>" >> build/index.html
 
-          echo "<h2>CRSF disabled (BUILD_CRSF_CONFIG=0)</h2>" >> build/index.html
+          echo "<h2>Bluesky, NE260, E016H (BUILD_TYPE=1)</h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
           find build/crsf0 -type f -name '*.zip' | sort | while read file; do
             relpath="${file#build/}"
