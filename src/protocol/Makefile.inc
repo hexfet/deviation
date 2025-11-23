@@ -5,7 +5,6 @@ PROTO_MODULES += $(ODIR)/protocol/dsm2.mod
 PROTO_MODULES += $(ODIR)/protocol/dsmx.mod
 PROTO_MODULES += $(ODIR)/protocol/flysky.mod
 PROTO_MODULES += $(ODIR)/protocol/afhds-2a.mod
-PROTO_MODULES += $(ODIR)/protocol/hubsan4.mod
 PROTO_MODULES += $(ODIR)/protocol/joysway.mod
 PROTO_MODULES += $(ODIR)/protocol/j6pro.mod
 PROTO_MODULES += $(ODIR)/protocol/ppm.mod
@@ -66,6 +65,7 @@ ifeq "$(BUILD_TYPE)" "1"
 PROTO_MODULES += $(ODIR)/protocol/bluefly.mod
 PROTO_MODULES += $(ODIR)/protocol/ne260.mod
 PROTO_MODULES += $(ODIR)/protocol/e016h.mod
+PROTO_MODULES += $(ODIR)/protocol/hubsan4.mod
 endif
 PROTO_MODULES += $(ODIR)/protocol/sumd.mod
 ifeq "$(SUPPORT_SCANNER)" "1"
@@ -74,6 +74,11 @@ endif
 ifeq "$(SUPPORT_XN297DUMP)" "1"
 PROTO_MODULES += $(ODIR)/protocol/xn297dmp.mod
 endif
+PROTO_MODULES += $(ODIR)/protocol/e010.mod
+PROTO_MODULES += $(ODIR)/protocol/radiolink.mod
+PROTO_MODULES += $(ODIR)/protocol/v761.mod
+PROTO_MODULES += $(ODIR)/protocol/redpine.mod
+PROTO_MODULES += $(ODIR)/protocol/propel.mod
 
 ALL += $(PROTO_MODULES)
 else #BUILD_TARGET
@@ -103,10 +108,6 @@ $(ODIR)/protocol/frsky-v8.mod : $(ODIR)/frsky1way_cc2500.bin
 
 $(ODIR)/protocol/frsky.mod : $(ODIR)/frsky2way_cc2500.bin
 	@echo Building 'frsky2way' module
-	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
-
-$(ODIR)/protocol/hubsan4.mod : $(ODIR)/hubsan_a7105.bin
-	@echo Building 'hubsan4' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 
 $(ODIR)/protocol/joysway.mod : $(ODIR)/joysway_a7105.bin
@@ -332,6 +333,10 @@ $(ODIR)/protocol/ne260.mod : $(ODIR)/ne260_nrf24l01.bin
 $(ODIR)/protocol/e016h.mod : $(ODIR)/e016h_nrf24l01.bin
 	@echo Building 'e016h' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/hubsan4.mod : $(ODIR)/hubsan_a7105.bin
+	@echo Building 'hubsan4' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 endif
 
 $(ODIR)/protocol/sumd.mod : $(ODIR)/sumd_uart.bin
@@ -349,4 +354,24 @@ $(ODIR)/protocol/xn297dmp.mod : $(ODIR)/xn297dump_nrf24l01.bin
 	@echo Building 'xn297dmp' module
 	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
 endif
+
+$(ODIR)/protocol/e010.mod : $(ODIR)/e010_cc2500.bin
+	@echo Building 'e010' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/radiolink.mod : $(ODIR)/radiolink_cc2500.bin
+	@echo Building 'radiolink' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/v761.mod : $(ODIR)/v761_nrf24l01.bin
+	@echo Building 'v761' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
+$(ODIR)/protocol/redpine.mod : $(ODIR)/redpine_cc2500.bin
+	@echo Building 'redpine' module
+
+$(ODIR)/protocol/propel.mod : $(ODIR)/propel_nrf24l01.bin
+	@echo Building 'propel' module
+	/bin/mkdir -p $(ODIR)/protocol/ 2>/dev/null; /bin/cp $< $@
+
 endif #BUILD_TARGET
