@@ -4,7 +4,7 @@ on:
     branches: [ github_action_build ]
 
 jobs:
-  build_crsf1:
+  build_type0:
     name: Build all zips (BUILD_TYPE=0)
     runs-on: ubuntu-latest
     steps:
@@ -27,11 +27,11 @@ jobs:
         id: zip_files
         shell: bash
         run: |
-          mkdir -p build/crsf1
+          mkdir -p build/type0
           num_zips=$(ls -1 src/*zip | wc -l || true)
           echo "Found $num_zips zip files created"
           if [[ $num_zips -eq 19 ]]; then
-            mv src/*zip build/crsf1/
+            mv src/*zip build/type0/
           else
             echo "Expected 19 zips - aborting"
             exit 1
@@ -39,10 +39,10 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-crsf1
-          path: build/crsf1/
+          name: build-type0
+          path: build/type0/
 
-  build_crsf0:
+  build_type1:
     name: Build all zips (BUILD_TYPE=1)
     runs-on: ubuntu-latest
     steps:
@@ -65,11 +65,11 @@ jobs:
         id: zip_files
         shell: bash
         run: |
-          mkdir -p build/crsf0
+          mkdir -p build/type1
           num_zips=$(ls -1 src/*zip | wc -l || true)
           echo "Found $num_zips zip files created"
           if [[ $num_zips -eq 19 ]]; then
-            mv src/*zip build/crsf0/
+            mv src/*zip build/type1/
           else
             echo "Expected 19 zips - aborting"
             exit 1
@@ -77,26 +77,26 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-crsf0
-          path: build/crsf0/
+          name: build-type1
+          path: build/type1/
 
   assemble:
     name: Assemble builds and upload pages artifact
     runs-on: ubuntu-latest
-    needs: [build_crsf1, build_crsf0]
+    needs: [build_type0, build_type1]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
-      - name: Download CRSF=1 artifact
+      - name: Download BUILD_TYPE=0 artifact
         uses: actions/download-artifact@v4
         with:
-          name: build-crsf1
-          path: build/crsf1
-      - name: Download CRSF=0 artifact
+          name: build-type0
+          path: build/type0
+      - name: Download BUILD_TYPE=1 artifact
         uses: actions/download-artifact@v4
         with:
-          name: build-crsf0
-          path: build/crsf0
+          name: build-type1
+          path: build/type1
       - name: Generate styled index.html
         run: |
           echo "<!DOCTYPE html>" > build/index.html
@@ -125,7 +125,7 @@ jobs:
           echo "<h1>Available Builds</h1>" >> build/index.html
           echo "<h2>LOLI, CRSF configuration (BUILD_TYPE=0)</h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
-          find build/crsf1 -type f -name '*.zip' | sort | while read file; do
+          find build/type0 -type f -name '*.zip' | sort | while read file; do
             relpath="${file#build/}"
             size=$(du -h "$file" | cut -f1)
             mtime=$(date -r "$file" "+%Y-%m-%d %H:%M")
@@ -135,7 +135,7 @@ jobs:
 
           echo "<h2>Bluesky, NE260, E016H (BUILD_TYPE=1)</h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
-          find build/crsf0 -type f -name '*.zip' | sort | while read file; do
+          find build/type1 -type f -name '*.zip' | sort | while read file; do
             relpath="${file#build/}"
             size=$(du -h "$file" | cut -f1)
             mtime=$(date -r "$file" "+%Y-%m-%d %H:%M")
