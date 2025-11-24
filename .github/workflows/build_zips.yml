@@ -110,7 +110,7 @@ jobs:
               padding: 2rem;
               line-height: 1.6;
             }
-            h1 { text-align: center; margin-bottom: 2rem; color: #222; }
+            h1 { text-align: left; margin-bottom: 2rem; color: #222; }
             h2 { margin-top: 1.5rem; color: #333; }
             table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); overflow: hidden; }
             th, td { padding: 12px 16px; text-align: left; }
@@ -123,7 +123,7 @@ jobs:
           echo "<h1>Repo</h1>" >> build/index.html
           echo "<a src=\"https://github.com/hexfet/deviation\">Deviation@hexfet</a>" >> build/index.html
           echo "<h1>Available Builds</h1>" >> build/index.html
-          echo "<h2>LOLI, CRSF configuration (BUILD_TYPE=0)</h2>" >> build/index.html
+          echo "<h2>BUILD_TYPE=0 includes: LOLI, Propel, CRSF configuration (BUILD_TYPE=0)</h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
           find build/type0 -type f -name '*.zip' | sort | while read file; do
             relpath="${file#build/}"
@@ -133,7 +133,7 @@ jobs:
           done
           echo "</table>" >> build/index.html
 
-          echo "<h2>Bluesky, NE260, E016H (BUILD_TYPE=1)</h2>" >> build/index.html
+          echo "<h2>BUILD_TYPE=1 includes: Bluesky, NE260, E016H </h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
           find build/type1 -type f -name '*.zip' | sort | while read file; do
             relpath="${file#build/}"
