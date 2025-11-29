@@ -121,7 +121,7 @@ jobs:
           </style></head><body>" >> build/index.html
 
           echo "<h1>Repo</h1>" >> build/index.html
-          echo "<a src=\"https://github.com/hexfet/deviation\">Deviation@hexfet</a>" >> build/index.html
+          echo "<a href=\"https://github.com/hexfet/deviation\">Deviation@hexfet</a>" >> build/index.html
           echo "<h1>Available Builds</h1>" >> build/index.html
           echo "<h2>BUILD_TYPE=0 includes: LOLI, Propel, CRSF configuration</h2>" >> build/index.html
           echo "<table><tr><th>File</th><th>Size</th><th>Last Modified</th></tr>" >> build/index.html
