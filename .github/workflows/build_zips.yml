@@ -1,7 +1,7 @@
 name: Build zips
 on:
   push:
-    branches: [ master ]
+    branches: [ github_action_build ]
 
 jobs:
   build_type0:
@@ -11,6 +11,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
+          ref: master
           submodules: recursive
           fetch-tags: true
       - name: Run Docker container
@@ -49,6 +50,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
+          ref: master
           submodules: recursive
           fetch-tags: true
       - name: Run Docker container
@@ -85,8 +87,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build_type0, build_type1]
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
       - name: Download BUILD_TYPE=0 artifact
         uses: actions/download-artifact@v4
         with:
