@@ -1,7 +1,7 @@
 name: Build zips
 on:
   push:
-    branches: [ github_action_build ]
+    branches: [ master ]
 
 jobs:
   build_type0:
