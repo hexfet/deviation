@@ -40,6 +40,7 @@ static const char * const crsf_opts[] = {
   _tr_noop("Bit Rate"), "400K", "1.87M", "2.00M", NULL,
   _tr_noop("Show Hidden"), "No", "Yes", NULL,
   _tr_noop("ELRS Arm"), "CH5", "Virt1", "Virt2", "Virt3", "Virt4", "Virt5", "Virt6", "Virt7", "Virt8", "Virt9", "Virt10", NULL,
+  _tr_noop("Duplex"), "Half (Ext)", "Full (Int)", NULL,
   NULL
 };
 
@@ -137,7 +138,6 @@ void protocol_module_info(module_type_t type, u32 firmware_id) {
 inline u8 protocol_module_is_elrs(u8 maj_version) { return MODULE_IS_ELRS && (((module_firmware_id >> 16) & 0xff) >= maj_version); }
 inline u8 protocol_elrs_is_armed() { return elrs_info.flags & FLAG_ARMD; }
 void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
-    // protocol parameters are bitrate and show hidden UI options
     params[0].device = device_idx;            // device index of device parameter belongs to
     params[0].id = 1;                // Parameter number (starting from 1)
     params[0].parent = 0;            // Parent folder parameter number of the parent folder, 0 means root
@@ -185,6 +185,22 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[2].max_str = &((char*)params[2].value)[58];        // Longest choice length for text select
     params[2].lines_per_row = 1;
     params[2].u.text_sel = Model.proto_opts[PROTO_OPTS_ELRSARM];
+
+    params[3].device = device_idx;            // device index of device parameter belongs to
+    params[3].id = 4;                // Parameter number (starting from 1)
+    params[3].parent = 0;            // Parent folder parameter number of the parent folder, 0 means root
+    params[3].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
+    params[3].hidden = 0;            // set if hidden
+    params[3].loaded = 1;
+    params[3].name = (char*)crsf_opts[22];           // Null-terminated string
+    params[3].value = "Half (Ext)\000Full (Int)";    // must match crsf_opts
+    params[3].default_value = 0;  // size depending on data type. Not present for COMMAND.
+    params[3].min_value = 0;        // not sent for string type
+    params[3].max_value = 1;        // not sent for string type
+    params[3].changed = 0;           // flag if set needed when edit element is de-selected
+    params[3].max_str = &((char*)params[3].value)[11];        // Longest choice length for text select
+    params[3].lines_per_row = 1;
+    params[3].u.text_sel = Model.proto_opts[PROTO_OPTS_DUPLEX];
 }
 
 void protocol_set_param(crsf_param_t *param) {
@@ -199,6 +215,13 @@ void protocol_set_param(crsf_param_t *param) {
         break;
     case 3:
         Model.proto_opts[PROTO_OPTS_ELRSARM] = value;
+        break;
+    case 4:
+        Model.proto_opts[PROTO_OPTS_DUPLEX] = value;
+        if (Model.proto_opts[PROTO_OPTS_DUPLEX] == 0)
+            UART_SetDuplex(UART_DUPLEX_HALF);
+        else
+            UART_SetDuplex(UART_DUPLEX_FULL);
         break;
     }
 }
@@ -676,7 +699,8 @@ static void initialize()
 #endif
     UART_Initialize();
     UART_SetDataRate(bitrates[Model.proto_opts[PROTO_OPTS_BITRATE]]);
-    UART_SetDuplex(UART_DUPLEX_HALF);
+    if (Model.proto_opts[PROTO_OPTS_DUPLEX] == 0)
+        UART_SetDuplex(UART_DUPLEX_HALF);
 #if HAS_EXTENDED_TELEMETRY
     CBUF_Init(receive_buf);
     UART_StartReceive(serial_rcv);
