@@ -7,23 +7,21 @@ jobs:
   build_type0:
     name: Build all zips (BUILD_TYPE=0)
     runs-on: ubuntu-latest
+    container:
+      image: deviationtx/deviation-docker
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          ref: master
+          ref: github_action_build
           submodules: recursive
           fetch-tags: true
-      - name: Run Docker container
-        uses: addnab/docker-run-action@v3
-        with:
-          image: deviationtx/deviation-docker
-          options: -v ${{ github.workspace }}:/git/deviation
-          run: |
-            sudo /root/build.py --arm-prereq
-            export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
-            cd /git/deviation/src
-            BUILD_TYPE=0 make -j4 zips
+      - name: Build zips
+        run: |
+          /root/build.py --arm-prereq
+          export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
+          cd src
+          BUILD_TYPE=0 make -j4 zips
       - name: Verify build and collect zips
         id: zip_files
         shell: bash
@@ -46,23 +44,21 @@ jobs:
   build_type1:
     name: Build all zips (BUILD_TYPE=1)
     runs-on: ubuntu-latest
+    container:
+      image: deviationtx/deviation-docker
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          ref: master
+          ref: github_action_build
           submodules: recursive
           fetch-tags: true
-      - name: Run Docker container
-        uses: addnab/docker-run-action@v3
-        with:
-          image: deviationtx/deviation-docker
-          options: -v ${{ github.workspace }}:/git/deviation
-          run: |
-            sudo /root/build.py --arm-prereq
-            export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
-            cd /git/deviation/src
-            BUILD_TYPE=1 make -j4 zips
+      - name: Build zips
+        run: |
+          /root/build.py --arm-prereq
+          export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
+          cd src
+          BUILD_TYPE=1 make -j4 zips
       - name: Verify build and collect zips
         id: zip_files
         shell: bash
