@@ -34,10 +34,10 @@
 #define CRSF_PACKET_SIZE          26
 
 volatile uint16_t crcErrorCount;
-static const u32 bitrates[] = { 400000, 1870000, 2000000 };
+static const u32 bitrates[] = { 400000, 1870000, 2000000, 2250000 };
 static s8 new_bitrate_index = -1;
 static const char * const crsf_opts[] = {
-  _tr_noop("Bit Rate"), "400K", "1.87M", "2.00M", NULL,
+  _tr_noop("Bit Rate"), "400K", "1.87M", "2.00M", "2.25M", NULL,
   _tr_noop("Show Hidden"), "No", "Yes", NULL,
   _tr_noop("ELRS Arm"), "CH5", "Virt1", "Virt2", "Virt3", "Virt4", "Virt5", "Virt6", "Virt7", "Virt8", "Virt9", "Virt10", NULL,
   _tr_noop("Duplex"), "Half (Ext)", "Full (Int)", NULL,
@@ -60,6 +60,7 @@ s8 check_bitrate(u32 rate) {
     if (rate == bitrates[0]) return 0;
     if (rate == bitrates[1]) return 1;
     if (rate == bitrates[2]) return 2;
+    if (rate == bitrates[3]) return 3;
     return -1;
 }
 
@@ -145,12 +146,12 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[0].hidden = 0;            // set if hidden
     params[0].loaded = 1;
     params[0].name = (char*)crsf_opts[0];           // Null-terminated string
-    params[0].value = "400K\0001.87M\0002.00M";    // must match crsf_opts
+    params[0].value = "400K\0001.87M\0002.00M\0002.25M";    // must match crsf_opts
     params[0].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[0].min_value = 0;        // not sent for string type
-    params[0].max_value = 2;        // not sent for string type
+    params[0].max_value = 3;        // not sent for string type
     params[0].changed = 0;           // flag if set needed when edit element is de-selected
-    params[0].max_str = &((char*)params[0].value)[11];        // Longest choice length for text select
+    params[0].max_str = &((char*)params[0].value)[17];        // Longest choice length for text select
     params[0].lines_per_row = 1;
     params[0].u.text_sel = Model.proto_opts[PROTO_OPTS_BITRATE];
 
@@ -160,7 +161,7 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[1].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
     params[1].hidden = 0;            // set if hidden
     params[1].loaded = 1;
-    params[1].name = (char*)crsf_opts[5];           // Null-terminated string
+    params[1].name = (char*)crsf_opts[6];           // Null-terminated string
     params[1].value = "No\000Yes";    // must match crsf_opts
     params[1].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[1].min_value = 0;        // not sent for string type
@@ -176,7 +177,7 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[2].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
     params[2].hidden = 0;            // set if hidden
     params[2].loaded = 1;
-    params[2].name = (char*)crsf_opts[9];           // Null-terminated string
+    params[2].name = (char*)crsf_opts[10];           // Null-terminated string
     params[2].value = "CH5\000Virt1\000Virt2\000Virt3\000Virt4\000Virt5\000Virt6\000Virt7\000Virt8\000Virt9\000Virt10";
     params[2].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[2].min_value = 0;        // not sent for string type
@@ -192,7 +193,7 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[3].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
     params[3].hidden = 0;            // set if hidden
     params[3].loaded = 1;
-    params[3].name = (char*)crsf_opts[22];           // Null-terminated string
+    params[3].name = (char*)crsf_opts[23];           // Null-terminated string
     params[3].value = "Half (Ext)\000Full (Int)";    // must match crsf_opts
     params[3].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[3].min_value = 0;        // not sent for string type
