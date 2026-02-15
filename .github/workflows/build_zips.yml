@@ -7,21 +7,22 @@ jobs:
   build_type0:
     name: Build all zips (BUILD_TYPE=0)
     runs-on: ubuntu-latest
-    container:
-      image: deviationtx/deviation-docker
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          ref: github_action_build
+          ref: master
           submodules: recursive
           fetch-tags: true
-      - name: Build zips
+      - name: Build in Docker container
         run: |
-          /root/build.py --arm-prereq
-          export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
-          cd src
-          BUILD_TYPE=0 make -j4 zips
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace/src \
+            deviationtx/deviation-docker \
+            sh -c "/root/build.py --arm-prereq && \
+                   export PATH=\$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin && \
+                   BUILD_TYPE=0 make -j4 zips"
       - name: Verify build and collect zips
         id: zip_files
         shell: bash
@@ -44,21 +45,22 @@ jobs:
   build_type1:
     name: Build all zips (BUILD_TYPE=1)
     runs-on: ubuntu-latest
-    container:
-      image: deviationtx/deviation-docker
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          ref: github_action_build
+          ref: master
           submodules: recursive
           fetch-tags: true
-      - name: Build zips
+      - name: Build in Docker container
         run: |
-          /root/build.py --arm-prereq
-          export PATH=$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin
-          cd src
-          BUILD_TYPE=1 make -j4 zips
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace/src \
+            deviationtx/deviation-docker \
+            sh -c "/root/build.py --arm-prereq && \
+                   export PATH=\$PATH:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin && \
+                   BUILD_TYPE=1 make -j4 zips"
       - name: Verify build and collect zips
         id: zip_files
         shell: bash
@@ -158,5 +160,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-        
