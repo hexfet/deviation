@@ -34,12 +34,13 @@
 #define CRSF_PACKET_SIZE          26
 
 volatile uint16_t crcErrorCount;
-static const u32 bitrates[] = { 400000, 1870000, 2000000 };
+static const u32 bitrates[] = { 400000, 1870000, 2000000, 2250000 };
 static s8 new_bitrate_index = -1;
 static const char * const crsf_opts[] = {
-  _tr_noop("Bit Rate"), "400K", "1.87M", "2.00M", NULL,
+  _tr_noop("Bit Rate"), "400K", "1.87M", "2.00M", "2.25M", NULL,
   _tr_noop("Show Hidden"), "No", "Yes", NULL,
   _tr_noop("ELRS Arm"), "CH5", "Virt1", "Virt2", "Virt3", "Virt4", "Virt5", "Virt6", "Virt7", "Virt8", "Virt9", "Virt10", NULL,
+  _tr_noop("Duplex"), "Half (Ext)", "Full (Int)", NULL,
   NULL
 };
 
@@ -59,6 +60,7 @@ s8 check_bitrate(u32 rate) {
     if (rate == bitrates[0]) return 0;
     if (rate == bitrates[1]) return 1;
     if (rate == bitrates[2]) return 2;
+    if (rate == bitrates[3]) return 3;
     return -1;
 }
 
@@ -137,7 +139,6 @@ void protocol_module_info(module_type_t type, u32 firmware_id) {
 inline u8 protocol_module_is_elrs(u8 maj_version) { return MODULE_IS_ELRS && (((module_firmware_id >> 16) & 0xff) >= maj_version); }
 inline u8 protocol_elrs_is_armed() { return elrs_info.flags & FLAG_ARMD; }
 void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
-    // protocol parameters are bitrate and show hidden UI options
     params[0].device = device_idx;            // device index of device parameter belongs to
     params[0].id = 1;                // Parameter number (starting from 1)
     params[0].parent = 0;            // Parent folder parameter number of the parent folder, 0 means root
@@ -145,12 +146,12 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[0].hidden = 0;            // set if hidden
     params[0].loaded = 1;
     params[0].name = (char*)crsf_opts[0];           // Null-terminated string
-    params[0].value = "400K\0001.87M\0002.00M";    // must match crsf_opts
+    params[0].value = "400K\0001.87M\0002.00M\0002.25M";    // must match crsf_opts
     params[0].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[0].min_value = 0;        // not sent for string type
-    params[0].max_value = 2;        // not sent for string type
+    params[0].max_value = 3;        // not sent for string type
     params[0].changed = 0;           // flag if set needed when edit element is de-selected
-    params[0].max_str = &((char*)params[0].value)[11];        // Longest choice length for text select
+    params[0].max_str = &((char*)params[0].value)[17];        // Longest choice length for text select
     params[0].lines_per_row = 1;
     params[0].u.text_sel = Model.proto_opts[PROTO_OPTS_BITRATE];
 
@@ -160,7 +161,7 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[1].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
     params[1].hidden = 0;            // set if hidden
     params[1].loaded = 1;
-    params[1].name = (char*)crsf_opts[5];           // Null-terminated string
+    params[1].name = (char*)crsf_opts[6];           // Null-terminated string
     params[1].value = "No\000Yes";    // must match crsf_opts
     params[1].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[1].min_value = 0;        // not sent for string type
@@ -176,7 +177,7 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[2].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
     params[2].hidden = 0;            // set if hidden
     params[2].loaded = 1;
-    params[2].name = (char*)crsf_opts[9];           // Null-terminated string
+    params[2].name = (char*)crsf_opts[10];           // Null-terminated string
     params[2].value = "CH5\000Virt1\000Virt2\000Virt3\000Virt4\000Virt5\000Virt6\000Virt7\000Virt8\000Virt9\000Virt10";
     params[2].default_value = 0;  // size depending on data type. Not present for COMMAND.
     params[2].min_value = 0;        // not sent for string type
@@ -185,6 +186,22 @@ void protocol_read_params(u8 device_idx, crsf_param_t params[]) {
     params[2].max_str = &((char*)params[2].value)[58];        // Longest choice length for text select
     params[2].lines_per_row = 1;
     params[2].u.text_sel = Model.proto_opts[PROTO_OPTS_ELRSARM];
+
+    params[3].device = device_idx;            // device index of device parameter belongs to
+    params[3].id = 4;                // Parameter number (starting from 1)
+    params[3].parent = 0;            // Parent folder parameter number of the parent folder, 0 means root
+    params[3].type = TEXT_SELECTION;  // (Parameter type definitions and hidden bit)
+    params[3].hidden = 0;            // set if hidden
+    params[3].loaded = 1;
+    params[3].name = (char*)crsf_opts[23];           // Null-terminated string
+    params[3].value = "Half (Ext)\000Full (Int)";    // must match crsf_opts
+    params[3].default_value = 0;  // size depending on data type. Not present for COMMAND.
+    params[3].min_value = 0;        // not sent for string type
+    params[3].max_value = 1;        // not sent for string type
+    params[3].changed = 0;           // flag if set needed when edit element is de-selected
+    params[3].max_str = &((char*)params[3].value)[11];        // Longest choice length for text select
+    params[3].lines_per_row = 1;
+    params[3].u.text_sel = Model.proto_opts[PROTO_OPTS_DUPLEX];
 }
 
 void protocol_set_param(crsf_param_t *param) {
@@ -199,6 +216,13 @@ void protocol_set_param(crsf_param_t *param) {
         break;
     case 3:
         Model.proto_opts[PROTO_OPTS_ELRSARM] = value;
+        break;
+    case 4:
+        Model.proto_opts[PROTO_OPTS_DUPLEX] = value;
+        if (Model.proto_opts[PROTO_OPTS_DUPLEX] == 0)
+            UART_SetDuplex(UART_DUPLEX_HALF);
+        else
+            UART_SetDuplex(UART_DUPLEX_FULL);
         break;
     }
 }
@@ -240,6 +264,46 @@ static u8 getCrossfireTelemetryValue(u8 index, s32 *value, u8 len) {
   }
   return result;
 }
+
+#if SUPPORT_CRSF_CONFIG
+// use interpolation to approximate exponentiation used in CRSF specification
+typedef struct {
+    int8_t x;
+    int16_t y;
+} breakpoint_t;
+
+// max error 4.35% at 8 (optimized with Ramer-Douglas-Peucker from full table)
+static const breakpoint_t breakpoints[] = {
+    {0, 0}, {7, 19}, {14, 43}, {23, 81}, {36, 154}, {46, 230}, {56, 328},
+    {65, 441}, {79, 679}, {94, 1051}, {106, 1473}, {117, 1994}, {127, 2616}
+};
+
+static int16_t get_vertical_speed_cm_s(int8_t vertical_speed_packed) {
+    if (vertical_speed_packed == 0) return 0;
+
+    const int8_t num_breakpoints = sizeof(breakpoints)/sizeof(breakpoint_t);
+    const int8_t abs_val = abs(vertical_speed_packed);
+    const int8_t sign_val = (vertical_speed_packed > 0) ? 1 : -1;
+
+    int8_t segment = 0;
+    for (int8_t i = 0; i < num_breakpoints - 1; i++) {
+        if (abs_val <= breakpoints[i + 1].x) {
+            segment = i;
+            break;
+        }
+    }
+
+    const int8_t x0 = breakpoints[segment].x;
+    const int8_t x1 = breakpoints[segment + 1].x;
+    const int16_t y0 = breakpoints[segment].y;
+    const int16_t y1 = breakpoints[segment + 1].y;
+    // Linear interpolation: y = y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    const int32_t numerator = (int32_t)(y1 - y0) * (abs_val - x0);
+
+    return sign_val * (y0 + (int16_t)(numerator / (x1 - x0)));
+}
+#endif
+
 
 static void processCrossfireTelemetryFrame()
 {
@@ -338,9 +402,16 @@ static void processCrossfireTelemetryFrame()
         }
         set_telemetry(TELEM_CRSF_ALTITUDE, value);
       }
-      // if length greater than 4 then vario info is included
-      if (telemetryRxBuffer[1] > 5 && getCrossfireTelemetryValue(5, &value, 2))
-        set_telemetry(TELEM_CRSF_VERTSPD, value);
+      // if packet length greater than 4 then vario info is included
+      // if packet length = 5, vertical speed is log encoded as per spec
+      // if 6, vertical speed is 16bit linear (ELRS, Rotorflight)
+      if (telemetryRxBuffer[1] == 5) {
+          set_telemetry(TELEM_CRSF_VERTSPD, get_vertical_speed_cm_s(telemetryRxBuffer[5]));
+      } else if (telemetryRxBuffer[1] == 6) {
+          if (getCrossfireTelemetryValue(5, &value, 2))
+              set_telemetry(TELEM_CRSF_VERTSPD, value);
+      }
+
       break;
 
 // Leave this mostly disabled for backwards compatibility with TBS XF Transmitter firmware
@@ -401,12 +472,19 @@ static void processCrossfireTelemetryFrame()
       break;
 
     case TYPE_VTX_TELEM:
-      if (getCrossfireTelemetryValue(3, &value, 2))
-        set_telemetry(TELEM_CRSF_VTX_FREQ, value);
-      if (getCrossfireTelemetryValue(5, &value, 1))
-        set_telemetry(TELEM_CRSF_VTX_PITMODE, value);
-      if (getCrossfireTelemetryValue(6, &value, 1))
+      // Payload layout per CRSF spec:
+      // origin_address (1), power_dBm (1), frequency_MHz (2), pitmode (1)
+      if (getCrossfireTelemetryValue(3, &value, 1))
+        set_telemetry(TELEM_CRSF_VTX_SRC, value);
+      if (getCrossfireTelemetryValue(4, &value, 1))
         set_telemetry(TELEM_CRSF_VTX_POWER, value);
+      if (getCrossfireTelemetryValue(5, &value, 2))
+        set_telemetry(TELEM_CRSF_VTX_FREQ, value);
+      if (getCrossfireTelemetryValue(7, &value, 1)) {
+        set_telemetry(TELEM_CRSF_VTX_PITMODE, value & 0x01);
+        set_telemetry(TELEM_CRSF_VTX_PITCTRL, (value >> 1) & 0x03);
+        set_telemetry(TELEM_CRSF_VTX_PITSW, (value >> 3) & 0x0F);
+      }
       break;
 
     case TYPE_AIRSPEED:
@@ -629,7 +707,8 @@ static void initialize()
 #endif
     UART_Initialize();
     UART_SetDataRate(bitrates[Model.proto_opts[PROTO_OPTS_BITRATE]]);
-    UART_SetDuplex(UART_DUPLEX_HALF);
+    if (Model.proto_opts[PROTO_OPTS_DUPLEX] == 0)
+        UART_SetDuplex(UART_DUPLEX_HALF);
 #if HAS_EXTENDED_TELEMETRY
     CBUF_Init(receive_buf);
     UART_StartReceive(serial_rcv);
@@ -682,4 +761,3 @@ uintptr_t CRSF_Cmds(enum ProtoCmds cmd)
     }
     return 0;
 }
-
