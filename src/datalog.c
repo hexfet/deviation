@@ -22,7 +22,7 @@
 #if HAS_DATALOG
 
 // Set to 1 to enable DATALOG_RawWrite function for debugging
-#define ENABLE_RAW_WRITE 0
+#define ENABLE_RAW_WRITE 1
 
 // version check by utils/datalog2csv.py
 #define DATALOG_VERSION 0x05

@@ -527,6 +527,8 @@ NO_INLINE static void parse_telemetry_packet()
 
     static u16 pktTelem[8];
 
+DATALOG_RawWrite(packet, 16); // TODO
+
     // Convert 8bit packet into 16bit equivalent
     if (LSB_1st) {
         for(u32 i = 1; i < 8; ++i) {
