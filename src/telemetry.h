@@ -28,7 +28,8 @@ enum {
     TELEM_DEVO_RPM2,
     TELEM_DEVO_LAST,
 };
-enum {
+
+typedef enum {
     TELEM_DSM_FLOG_FADESA = 1,
     TELEM_DSM_FLOG_FADESB,
     TELEM_DSM_FLOG_FADESL,
@@ -106,7 +107,7 @@ enum {
     I2C_SMART_BAT_CELL_10,
 #endif
     TELEM_DSM_LAST,
-};
+} dsm_telem_t;
 
 
 // FrSky telemetry stream state machine

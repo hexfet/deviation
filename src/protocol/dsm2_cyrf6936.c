@@ -447,7 +447,7 @@ static u32 pkt32_to_coord(u8 *ptr)
          + bcd_to_int(((u32)ptr[2] << 16) | ((u32)ptr[1] << 8) | ptr[0]) * 6;
 }
 
-static void set_telemetry(crossfire_telem_t offset, s32 value) {
+static void set_telemetry(dsm_telem_t offset, s32 value) {
     Telemetry.value[offset] = value;
     TELEMETRY_SetUpdated(offset);
 }
