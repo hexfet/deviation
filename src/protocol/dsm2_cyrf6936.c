@@ -733,7 +733,8 @@ DATALOG_RawWrite(packet, 16); // TODO
     }
 }
 
-#if 0
+#define DEBUG_TELEM 0
+#if DEBUG_TELEM
 // Sample telemetry capture from EFlite UMX plane (with Smart Battery telemetry)
 static u8 telem_data[][16] = {
 	{  0x7E, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xE4, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
@@ -764,7 +765,7 @@ static u16 dsm2_cb()
 #define READ_DELAY     600  // Time before write to check read state, and switch channels.
                             // Telemetry read+processing =~200us and switch channels =~300us
 
-#if 0
+#if DEBUG_TELEM
     memcpy(packet, telem_data[telem_data_index], 16);
     telem_data_index = (telem_data_index + 1) % TELEM_DATA_LEN;
     parse_telemetry_packet();
